@@ -1,44 +1,1198 @@
+
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IE 591 | Portfolio Intelligence</title>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IE 591 | Portfolio Intelligence</title>
+
 <style>
-:root{--bg:#f5f7fb;--panel:#fff;--ink:#16243b;--muted:#708096;--line:#e6ebf2;--nav:#101c30;--accent:#3264e9;--teal:#16a6a0;--amber:#e8a044;--shadow:0 8px 30px #16243b0a}
-*{box-sizing:border-box}body{margin:0;font:14px/1.5 Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-.app{display:flex;min-height:100vh}.sidebar{width:258px;background:var(--nav);color:#e4ecfa;flex-shrink:0;padding:25px 16px;display:flex;flex-direction:column;gap:22px}
-.brand{display:flex;align-items:center;gap:12px;padding:0 10px}.logo{width:39px;height:39px;background:linear-gradient(145deg,#5588ff,#19b3b2);display:grid;place-items:center;border-radius:12px;font-weight:900;font-size:20px;color:white}.brand strong{font-size:16px;display:block}.brand small{font-size:11px;color:#9fb0c8}.navtitle{font-size:10px;color:#8498b4;letter-spacing:1.5px;font-weight:800;padding:0 13px;margin:0 0 9px}.nav{display:grid;gap:3px}.nav button{border:0;background:none;color:#aabbd3;text-align:left;padding:10px 12px;border-radius:9px;cursor:pointer;font:inherit;display:flex;gap:11px;align-items:center;width:100%}.nav button:hover,.nav button.active{background:#233858;color:#fff}.nav .symbol{width:20px;text-align:center;font-size:16px}.nav .num{margin-left:auto;font-size:10px;opacity:.5}.sidefoot{margin-top:auto;border-top:1px solid #314058;padding:18px 10px 0;color:#a7b9d2;font-size:12px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ad1ad;margin-right:7px}.main{flex:1;min-width:0}.topbar{height:78px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 34px}.crumb{color:var(--muted);font-size:13px}.crumb b{color:var(--ink)}.topright{display:flex;align-items:center;gap:12px}.pill{background:#eaf6f3;color:#18796e;border-radius:30px;padding:6px 12px;font-size:11px;font-weight:800}.avatar{width:35px;height:35px;border-radius:50%;background:#eaf0fd;display:grid;place-items:center;color:#4162ae;font-weight:800}.content{padding:32px 34px;max-width:1480px;margin:auto}.heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:23px}.eyebrow{color:#6077ad;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.heading h1{font-size:29px;letter-spacing:-.8px;margin:4px 0 6px}.sub{color:var(--muted);margin:0}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{background:var(--accent);border:1px solid var(--accent);color:#fff;padding:10px 15px;border-radius:9px;font:inherit;font-weight:700;cursor:pointer}.btn.secondary{background:white;color:var(--ink);border-color:#dbe2ee}.btn:hover{filter:brightness(.96)}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.card{padding:20px}.card .k{color:var(--muted);font-size:12px}.card .v{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:6px}.card .hint{font-size:11px;color:#16a08b;margin-top:6px}.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:18px}.panel{padding:23px;margin-bottom:18px}.panel h3{margin:0 0 5px;font-size:16px}.panel .desc{color:var(--muted);font-size:12px;margin:0 0 18px}.chart{width:100%;height:auto}.legend{display:flex;gap:18px;color:var(--muted);font-size:12px;flex-wrap:wrap}.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.alloc{display:flex;align-items:center;gap:20px}.donut{width:170px;height:170px;border-radius:50%;background:conic-gradient(#3264e9 0 60%,#16a6a0 60% 90%,#e8a044 90%);position:relative;flex-shrink:0}.donut:after{content:"";position:absolute;inset:34px;background:white;border-radius:50%}.donut span{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;z-index:1;font-size:19px}.alines{flex:1}.aline{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.aline small{color:var(--muted)}.section-title{display:flex;justify-content:space-between;align-items:center;margin:2px 0 12px}.section-title h3{margin:0}.workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.step{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fff;cursor:pointer;text-align:left}.step strong{display:block;font-size:12px;margin:5px 0}.step small{color:var(--muted)}.step .circle{width:29px;height:29px;border-radius:50%;background:#eef2ff;color:#3561d9;display:grid;place-items:center;font-weight:800}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field label{display:block;color:#52627b;font-weight:700;font-size:12px;margin-bottom:7px}.field input,.field select{width:100%;border:1px solid #dbe2ee;border-radius:9px;padding:11px 12px;font:inherit;background:white;color:var(--ink)}.note{padding:14px 16px;border-radius:10px;background:#f0f5ff;color:#46628d;font-size:12px;margin:16px 0}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:13px 11px;border-bottom:1px solid var(--line);text-align:left}.table th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}.tag{display:inline-block;background:#fff5df;color:#976517;padding:4px 8px;border-radius:7px;font-size:11px;font-weight:700}.tag.blue{background:#eef3ff;color:#3861c8}.tag.green{background:#e8f7f1;color:#16876c}.hidden{display:none!important}.placeholder{border:1px dashed #bfcbe0;border-radius:12px;padding:35px;text-align:center;background:#fbfcff}.placeholder .big{font-size:38px;margin-bottom:8px}.placeholder p{max-width:500px;margin:8px auto;color:var(--muted)}.toast{position:fixed;bottom:24px;right:24px;background:#14243e;color:white;padding:14px 18px;border-radius:11px;box-shadow:0 12px 35px #0003;display:none;max-width:330px;z-index:3}.toast.show{display:block}.mobilemenu{display:none}.mini{font-size:12px;color:var(--muted)}.progress{height:7px;background:#e9eef6;border-radius:9px;overflow:hidden}.progress span{display:block;height:100%;background:var(--accent)}@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.workflow{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;overflow:auto}.sidebar.open{display:flex}.mobilemenu{display:inline-block}.topbar{padding:0 16px}.content{padding:22px 15px}.heading{flex-direction:column}.cards{grid-template-columns:repeat(2,1fr);gap:9px}.card{padding:14px}.card .v{font-size:21px}.workflow{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.alloc{flex-direction:column}.panel{padding:16px}}
-</style></head><body>
-<div class="app"><aside class="sidebar" id="sidebar"><div class="brand"><div class="logo">P</div><div><strong>Portfolio Intelligence</strong><small>IE 591 · Final Project</small></div></div>
-<div><p class="navtitle">WORKSPACE</p><nav class="nav" id="nav"></nav></div><div class="sidefoot"><span class="dot"></span> UI prototype ready<br><span style="opacity:.7">10 skills · Demo mode</span><p>University course project<br>Educational use only</p></div></aside>
-<main class="main"><header class="topbar"><div><button class="btn secondary mobilemenu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button><span class="crumb">Workspace / <b id="breadcrumb">Dashboard</b></span></div><div class="topright"><span class="pill">● DEMO MODE</span><span class="avatar">IE</span></div></header><div class="content">
-<div class="heading"><div><div class="eyebrow">Integrated Investment Analytics</div><h1 id="pageTitle">Portfolio Dashboard</h1><p class="sub" id="pageDesc">Your investment analysis workspace — sample data for UI testing.</p></div><div class="actions"><button class="btn secondary" onclick="downloadDemo()">↓ Export Demo JSON</button><button class="btn" onclick="go('profile')">+ New Analysis</button></div></div>
+:root {
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --ink: #16243b;
+  --muted: #708096;
+  --line: #e6ebf2;
+  --nav: #101c30;
+  --accent: #3264e9;
+  --teal: #16a6a0;
+  --shadow: 0 8px 30px #16243b0a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 14px/1.5 "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 258px;
+  background: var(--nav);
+  color: #e4ecfa;
+  flex-shrink: 0;
+  padding: 25px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+}
+
+.logo {
+  width: 39px;
+  height: 39px;
+  background: linear-gradient(145deg, #5588ff, #19b3b2);
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 20px;
+  color: white;
+}
+
+.brand strong { font-size: 16px; display: block; }
+.brand small { font-size: 11px; color: #9fb0c8; }
+
+.navtitle {
+  font-size: 10px;
+  color: #8498b4;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  padding: 0 13px;
+}
+
+.nav { display: grid; gap: 3px; }
+
+.nav button {
+  border: 0;
+  background: none;
+  color: #aabbd3;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  font: inherit;
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  width: 100%;
+}
+
+.nav button:hover,
+.nav button.active {
+  background: #233858;
+  color: white;
+}
+
+.nav .symbol { width: 20px; text-align: center; }
+.nav .num { margin-left: auto; font-size: 10px; opacity: .5; }
+
+.sidefoot {
+  margin-top: auto;
+  border-top: 1px solid #314058;
+  padding: 18px 10px 0;
+  color: #a7b9d2;
+  font-size: 12px;
+}
+
+.main { flex: 1; min-width: 0; }
+
+.topbar {
+  height: 78px;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 34px;
+}
+
+.crumb { color: var(--muted); }
+.crumb b { color: var(--ink); }
+
+.pill {
+  background: #eaf6f3;
+  color: #18796e;
+  border-radius: 30px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.content {
+  padding: 32px 34px;
+  max-width: 1480px;
+  margin: auto;
+}
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 23px;
+}
+
+.eyebrow {
+  color: #6077ad;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.heading h1 {
+  font-size: 29px;
+  margin: 4px 0 6px;
+}
+
+.sub, .desc, .mini { color: var(--muted); }
+.desc, .mini { font-size: 12px; }
+
+.actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  background: white;
+  color: var(--ink);
+  border-color: #dbe2ee;
+}
+
+.btn:disabled { opacity: .5; cursor: wait; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.card, .panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.card { padding: 20px; }
+.card .k { color: var(--muted); font-size: 12px; }
+.card .v { font-size: 26px; font-weight: 800; margin-top: 6px; }
+.card .hint { color: var(--teal); font-size: 11px; }
+
+.panel { padding: 23px; margin-bottom: 18px; }
+.panel h3 { margin: 0 0 5px; font-size: 16px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 18px;
+}
+
+.chart { width: 100%; height: auto; }
+
+.alloc {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.donut {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #3264e9 0 60%,
+    #16a6a0 60% 90%,
+    #e8a044 90% 100%
+  );
+  position: relative;
+  flex-shrink: 0;
+}
+
+.donut::after {
+  content: "";
+  position: absolute;
+  inset: 32px;
+  background: white;
+  border-radius: 50%;
+}
+
+.donut span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+  font-weight: 800;
+  font-size: 19px;
+}
+
+.alines { flex: 1; }
+.aline {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.workflow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.step {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 15px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+}
+
+.step strong { display: block; margin: 6px 0; }
+.step small { color: var(--muted); }
+
+.circle {
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #3561d9;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.formgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field label {
+  display: block;
+  color: #52627b;
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.field input, .field select {
+  width: 100%;
+  border: 1px solid #dbe2ee;
+  border-radius: 9px;
+  padding: 11px 12px;
+  font: inherit;
+  background: white;
+  color: var(--ink);
+}
+
+.note {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f0f5ff;
+  color: #46628d;
+  font-size: 12px;
+  margin: 16px 0;
+}
+
+.hidden { display: none !important; }
+
+.placeholder {
+  border: 1px dashed #bfcbe0;
+  border-radius: 12px;
+  padding: 35px;
+  text-align: center;
+  background: #fbfcff;
+}
+
+.placeholder p { color: var(--muted); }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  padding: 13px 11px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.tag {
+  display: inline-block;
+  background: #fff5df;
+  color: #976517;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #14243e;
+  color: white;
+  padding: 14px 18px;
+  border-radius: 11px;
+  display: none;
+  max-width: 330px;
+}
+
+.toast.show { display: block; }
+
+.mobilemenu { display: none; }
+
+@media(max-width: 1100px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .layout { grid-template-columns: 1fr; }
+  .workflow { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media(max-width: 760px) {
+  .sidebar { display: none; position: fixed; z-index: 5; height: 100vh; overflow: auto; }
+  .sidebar.open { display: flex; }
+  .mobilemenu { display: inline-block; }
+  .topbar { padding: 0 16px; }
+  .content { padding: 22px 15px; }
+  .heading { flex-direction: column; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .workflow { grid-template-columns: repeat(2, 1fr); }
+  .formgrid { grid-template-columns: 1fr; }
+  .alloc { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="logo">P</div>
+    <div>
+      <strong>Portfolio Intelligence</strong>
+      <small>IE 591 · Final Project</small>
+    </div>
+  </div>
+
+  <div>
+    <p class="navtitle">WORKSPACE</p>
+    <nav class="nav" id="nav"></nav>
+  </div>
+
+  <div class="sidefoot">
+    Skill #1 — API Integration
+    <p>10 skills · Development mode</p>
+    <p>University course project<br>Educational use only</p>
+  </div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div>
+    <button class="btn secondary mobilemenu"
+      onclick="document.getElementById('sidebar').classList.toggle('open')">
+      ☰
+    </button>
+    <span class="crumb">
+      Workspace / <b id="breadcrumb">Dashboard</b>
+    </span>
+  </div>
+  <span class="pill">● DEVELOPMENT</span>
+</header>
+
+<div class="content">
+
+<div class="heading">
+  <div>
+    <div class="eyebrow">Integrated Investment Analytics</div>
+    <h1 id="pageTitle">Portfolio Dashboard</h1>
+    <p class="sub" id="pageDesc">
+      Your investment analysis workspace — illustrative data.
+    </p>
+  </div>
+  <div class="actions">
+    <button class="btn secondary" onclick="downloadDemo()">
+      Export Demo JSON
+    </button>
+    <button class="btn" onclick="go('profile')">
+      + New Analysis
+    </button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
 <section id="dashboard">
-<div class="cards"><div class="card"><div class="k">Portfolio Value</div><div class="v" id="dashValue">$250,000</div><div class="hint">Synthetic example</div></div><div class="card"><div class="k">Illustrative Annual Return</div><div class="v">7.4%</div><div class="hint">Not a forecast</div></div><div class="card"><div class="k">Illustrative Volatility</div><div class="v">12.1%</div><div class="hint">Sample metric</div></div><div class="card"><div class="k">Skills Connected</div><div class="v">0 / 10</div><div class="hint" style="color:#a07a31">Integration pending</div></div></div>
-<div class="layout"><div><div class="panel"><h3>Portfolio Performance Overview</h3><p class="desc">Illustrative index series · no live financial calculations</p><svg class="chart" viewBox="0 0 680 270" role="img" aria-label="Illustrative rising portfolio performance line"><defs><linearGradient id="shade" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#3264e9" stop-opacity=".17"/><stop offset="1" stop-color="#3264e9" stop-opacity="0"/></linearGradient></defs><g stroke="#e9edf4" stroke-width="1"><path d="M40 30H650M40 85H650M40 140H650M40 195H650M40 250H650"/></g><g font-size="12" fill="#8b98ac"><text x="2" y="34">160</text><text x="2" y="89">140</text><text x="2" y="144">120</text><text x="2" y="199">100</text><text x="2" y="254">80</text><text x="45" y="267">Jan</text><text x="190" y="267">Mar</text><text x="345" y="267">Jun</text><text x="500" y="267">Sep</text><text x="625" y="267">Dec</text></g><path d="M40 220 L92 207 L143 212 L194 178 L245 186 L296 150 L347 161 L398 128 L449 135 L500 90 L551 103 L602 64 L650 47 L650 250 L40 250 Z" fill="url(#shade)"/><path d="M40 220 L92 207 L143 212 L194 178 L245 186 L296 150 L347 161 L398 128 L449 135 L500 90 L551 103 L602 64 L650 47" fill="none" stroke="#3264e9" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="legend"><span><i style="background:#3264e9"></i>Demo portfolio index</span><span>Values are illustrative</span></div></div></div><div><div class="panel"><h3>Asset Allocation</h3><p class="desc">Illustrative portfolio composition</p><div class="alloc"><div class="donut"><span>100%</span></div><div class="alines"><div class="aline"><span>🔵 Stocks</span><b>60%</b></div><div class="aline"><span>🟢 Bonds</span><b>30%</b></div><div class="aline"><span>🟠 Cash</span><b>10%</b></div></div></div></div><div class="panel"><h3>Integration Readiness</h3><p class="desc">No analytical engines connected yet</p><div class="progress"><span style="width:0%"></span></div><p class="mini">0 of 10 skills integrated</p><button class="btn secondary" onclick="go('profile')">Open Investor Profile →</button></div></div></div>
-<div class="section-title"><h3>Analysis Workflow</h3><span class="mini">Select a workspace to preview</span></div><div class="workflow" id="workflow"></div></section>
-<section id="profile" class="hidden"><div class="panel"><h3>Investor Profile Builder</h3><p class="desc">Interactive prototype. Values are saved only in this browser session; no backend is connected.</p><div class="formgrid"><div class="field"><label>Investor Name</label><input id="investorName" value="Synthetic Investor A"></div><div class="field"><label>Starting Portfolio ($)</label><input id="investment" type="number" min="0" value="250000"></div><div class="field"><label>Investment Horizon (years)</label><input id="horizon" type="number" min="1" max="70" value="25"></div><div class="field"><label>Risk Tolerance</label><select id="risk"><option>Conservative</option><option selected>Moderate</option><option>Aggressive</option></select></div><div class="field"><label>Primary Goal</label><select id="goal"><option selected>Retirement</option><option>Wealth accumulation</option><option>Education funding</option><option>Capital preservation</option></select></div><div class="field"><label>Annual Contribution ($)</label><input id="contribution" type="number" min="0" value="12000"></div></div><div class="note">This screen tests form layout and state management. Saving does not run optimization or generate financial recommendations.</div><button class="btn" onclick="saveProfile()">Save Demo Profile</button> <button class="btn secondary" onclick="go('market')">Next: Market Intelligence →</button></div></section>
-<section id="workspace" class="hidden"><div class="panel"><h3 id="moduleTitle"></h3><p class="desc" id="moduleDesc"></p><div class="placeholder"><div class="big" id="moduleIcon">◈</div><h3 id="moduleMessage">Workspace preview</h3><p>This workspace is ready for its analytical engine and backend integration. No calculations are being claimed.</p><span class="tag">Awaiting integration</span></div></div><div class="panel"><h3>Planned functionality</h3><table class="table"><thead><tr><th>Component</th><th>Implementation status</th></tr></thead><tbody id="moduleFeatures"></tbody></table></div><button class="btn secondary" onclick="go('dashboard')">← Back to Dashboard</button></section>
-</div></main></div><div class="toast" id="toast" role="status"></div>
+
+<div class="cards">
+  <div class="card">
+    <div class="k">Portfolio Value</div>
+    <div class="v" id="dashValue">$250,000</div>
+    <div class="hint">Synthetic example</div>
+  </div>
+  <div class="card">
+    <div class="k">Illustrative Annual Return</div>
+    <div class="v">7.4%</div>
+    <div class="hint">Not a forecast</div>
+  </div>
+  <div class="card">
+    <div class="k">Illustrative Volatility</div>
+    <div class="v">12.1%</div>
+    <div class="hint">Sample metric</div>
+  </div>
+  <div class="card">
+    <div class="k">Skills Connected</div>
+    <div class="v">0 / 10</div>
+    <div class="hint">Skill #1 in progress</div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="panel">
+    <h3>Portfolio Performance Overview</h3>
+    <p class="desc">Illustrative performance index</p>
+    <svg class="chart" viewBox="0 0 680 270"
+      role="img" aria-label="Illustrative portfolio performance chart">
+      <g stroke="#e9edf4">
+        <path d="M40 30H650 M40 85H650 M40 140H650 M40 195H650 M40 250H650"/>
+      </g>
+      <path
+        d="M40 220 L92 207 L143 212 L194 178
+           L245 186 L296 150 L347 161 L398 128
+           L449 135 L500 90 L551 103 L602 64 L650 47"
+        fill="none"
+        stroke="#3264e9"
+        stroke-width="3.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+      <g fill="#8b98ac" font-size="12">
+        <text x="40" y="267">Jan</text>
+        <text x="190" y="267">Mar</text>
+        <text x="345" y="267">Jun</text>
+        <text x="500" y="267">Sep</text>
+        <text x="625" y="267">Dec</text>
+      </g>
+    </svg>
+    <p class="mini">
+      This chart is demonstration data, not actual portfolio performance.
+    </p>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h3>Asset Allocation</h3>
+      <p class="desc">Illustrative portfolio composition</p>
+      <div class="alloc">
+        <div class="donut"><span>100%</span></div>
+        <div class="alines">
+          <div class="aline"><span>Stocks</span><b>60%</b></div>
+          <div class="aline"><span>Bonds</span><b>30%</b></div>
+          <div class="aline"><span>Cash</span><b>10%</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Integration Readiness</h3>
+      <p class="desc">Skill #1 API implemented; UI validation pending</p>
+      <p class="mini">0 of 10 skills fully integrated</p>
+      <button class="btn secondary" onclick="go('profile')">
+        Open Investor Profile
+      </button>
+    </div>
+  </div>
+</div>
+
+<h3>Analysis Workflow</h3>
+<div class="workflow" id="workflow"></div>
+
+</section>
+
+<!-- INVESTOR PROFILE -->
+<section id="profile" class="hidden">
+
+<div class="panel">
+  <h3>Investor Profile Builder</h3>
+  <p class="desc">
+    Skill #1 — Submit and retrieve synthetic investor profiles
+    through the Python FastAPI backend.
+  </p>
+
+  <div class="formgrid">
+    <div class="field">
+      <label for="investorId">Investor ID</label>
+      <input id="investorId" value="SYNTHETIC-001" maxlength="100">
+    </div>
+
+    <div class="field">
+      <label for="investorName">Investor Name</label>
+      <input id="investorName" value="Synthetic Investor A">
+    </div>
+
+    <div class="field">
+      <label for="investment">Starting Portfolio ($)</label>
+      <input id="investment" type="number" min="0" value="250000">
+    </div>
+
+    <div class="field">
+      <label for="horizon">Investment Horizon (years)</label>
+      <input id="horizon" type="number" min="1" max="70" value="25">
+    </div>
+
+    <div class="field">
+      <label for="risk">Risk Tolerance</label>
+      <select id="risk">
+        <option>Conservative</option>
+        <option selected>Moderate</option>
+        <option>Aggressive</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="goal">Primary Goal (UI preview)</label>
+      <select id="goal">
+        <option selected>Retirement</option>
+        <option>Wealth accumulation</option>
+        <option>Education funding</option>
+        <option>Capital preservation</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="contribution">Annual Contribution ($)</label>
+      <input id="contribution" type="number" min="0" value="12000">
+    </div>
+  </div>
+
+  <div class="note">
+    Synthetic test data only. The backend currently uses temporary
+    memory storage. Records disappear when the server restarts.
+    The Primary Goal field is a UI preview and is not yet included
+    in the submitted API profile.
+  </div>
+
+  <div class="field">
+    <label for="apiBase">FastAPI Server URL</label>
+    <input id="apiBase" value="http://127.0.0.1:8000"
+      placeholder="http://127.0.0.1:8000">
+  </div>
+
+  <div class="note" id="apiFeedback" role="status" aria-live="polite">
+    API not checked. Start the backend before submitting.
+  </div>
+
+  <div class="actions">
+    <button class="btn secondary" onclick="checkApi()">
+      Check API Connection
+    </button>
+
+    <button class="btn" id="saveProfileBtn" onclick="saveProfile()">
+      Submit Profile to API
+    </button>
+
+    <button class="btn secondary" onclick="loadProfile()">
+      Retrieve Profile
+    </button>
+
+    <button class="btn secondary" onclick="go('market')">
+      Next: Market Intelligence
+    </button>
+  </div>
+</div>
+</section>
+
+<!-- OTHER SKILLS -->
+<section id="workspace" class="hidden">
+  <div class="panel">
+    <h3 id="moduleTitle"></h3>
+    <p class="desc" id="moduleDesc"></p>
+
+    <div class="placeholder">
+      <h3 id="moduleMessage">Workspace preview</h3>
+      <p>
+        This skill workspace is prepared for future analytical
+        engine integration. No calculations are being performed.
+      </p>
+      <span class="tag">Awaiting integration</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Planned Functionality</h3>
+    <table class="table">
+      <thead>
+        <tr><th>Component</th><th>Status</th></tr>
+      </thead>
+      <tbody id="moduleFeatures"></tbody>
+    </table>
+  </div>
+
+  <button class="btn secondary" onclick="go('dashboard')">
+    Back to Dashboard
+  </button>
+</section>
+
+</div>
+</main>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
 <script>
-const modules=[
-{id:'dashboard',name:'Dashboard',icon:'▦',desc:'Portfolio overview, progress and workflow'},
-{id:'profile',name:'Investor Profile',icon:'♙',desc:'Investor goals, constraints and risk preferences',features:['Profile validation','Goal management','Investor data persistence']},
-{id:'market',name:'Market Intelligence',icon:'▤',desc:'Historical market evidence and financial assumptions',features:['Asset universe selection','Market data import','Assumption provenance']},
-{id:'optimize',name:'Portfolio Optimization',icon:'◎',desc:'Portfolio construction and efficient frontier',features:['Allocation constraints','Optimization engine','Efficient frontier chart']},
-{id:'risk',name:'Risk Assessment',icon:'◇',desc:'Portfolio risk measures and downside analysis',features:['Volatility and drawdown','Value at Risk','Risk attribution']},
-{id:'charts',name:'Portfolio Visualization',icon:'▥',desc:'Interactive two-dimensional portfolio visualizations',features:['Allocation charts','Risk-return scatterplots','Performance comparison']},
-{id:'3d',name:'3D Portfolio Explorer',icon:'⬡',desc:'Interactive three-dimensional portfolio analysis',features:['3D risk-return visualization','Camera and filtering controls','Chart export']},
-{id:'forward',name:'Forward Testing',icon:'◷',desc:'Paper portfolio testing and hypothetical performance',features:['Forward-test scenarios','Portfolio tracking','Benchmark comparison']},
-{id:'monte',name:'Monte Carlo',icon:'≋',desc:'Stochastic outcomes and goal-achievement analysis',features:['Simulation parameters','Outcome distributions','Goal-achievement probabilities']},
-{id:'compare',name:'Strategy Comparison',icon:'⇄',desc:'Evidence-based comparison of portfolio alternatives',features:['Strategy eligibility','Multi-criteria comparison','Ranking robustness']},
-{id:'decision',name:'Decision Support',icon:'✧',desc:'Human-governed, evidence-grounded investment decisions',features:['Goal intelligence','Scenario robustness','Evidence-based explanations']},
-{id:'reports',name:'Reports & Validation',icon:'▧',desc:'Decision reports, audit evidence and academic acceptance',features:['PDF/JSON exports','Evidence lineage','Professor validation cases']}
+"use strict";
+
+const modules = [
+  {
+    id: "dashboard",
+    name: "Dashboard",
+    icon: "▦",
+    desc: "Portfolio overview and workflow"
+  },
+  {
+    id: "profile",
+    name: "Investor Profile",
+    icon: "♙",
+    desc: "Investor goals, constraints and risk preferences",
+    features: [
+      "Profile validation",
+      "Financial goal management",
+      "Investor data persistence"
+    ]
+  },
+  {
+    id: "market",
+    name: "Market Intelligence",
+    icon: "▤",
+    desc: "Market evidence and financial assumptions",
+    features: [
+      "Asset universe selection",
+      "Market data import",
+      "Assumption provenance"
+    ]
+  },
+  {
+    id: "optimize",
+    name: "Portfolio Optimization",
+    icon: "◎",
+    desc: "Portfolio construction and efficient frontier",
+    features: [
+      "Allocation constraints",
+      "Optimization engine",
+      "Efficient frontier"
+    ]
+  },
+  {
+    id: "risk",
+    name: "Risk Assessment",
+    icon: "◇",
+    desc: "Portfolio risk and downside analysis",
+    features: [
+      "Volatility and drawdown",
+      "Value at Risk",
+      "Risk attribution"
+    ]
+  },
+  {
+    id: "charts",
+    name: "Portfolio Visualization",
+    icon: "▥",
+    desc: "Two-dimensional portfolio visualizations",
+    features: [
+      "Allocation charts",
+      "Risk-return charts",
+      "Performance comparison"
+    ]
+  },
+  {
+    id: "3d",
+    name: "3D Portfolio Explorer",
+    icon: "⬡",
+    desc: "Three-dimensional portfolio analysis",
+    features: [
+      "3D visualization",
+      "Camera and filtering controls",
+      "Chart export"
+    ]
+  },
+  {
+    id: "forward",
+    name: "Forward Testing",
+    icon: "◷",
+    desc: "Paper portfolio testing",
+    features: [
+      "Forward-test scenarios",
+      "Portfolio tracking",
+      "Benchmark comparison"
+    ]
+  },
+  {
+    id: "monte",
+    name: "Monte Carlo",
+    icon: "≋",
+    desc: "Stochastic portfolio outcomes",
+    features: [
+      "Simulation parameters",
+      "Outcome distributions",
+      "Goal probabilities"
+    ]
+  },
+  {
+    id: "compare",
+    name: "Strategy Comparison",
+    icon: "⇄",
+    desc: "Portfolio strategy comparison",
+    features: [
+      "Strategy eligibility",
+      "Multi-criteria comparison",
+      "Ranking robustness"
+    ]
+  },
+  {
+    id: "decision",
+    name: "Decision Support",
+    icon: "✧",
+    desc: "Evidence-grounded investment decision support",
+    features: [
+      "Goal intelligence",
+      "Scenario robustness",
+      "Evidence-based explanations"
+    ]
+  },
+  {
+    id: "reports",
+    name: "Reports & Validation",
+    icon: "▧",
+    desc: "Reports, evidence and academic acceptance",
+    features: [
+      "PDF and JSON exports",
+      "Evidence lineage",
+      "Professor validation cases"
+    ]
+  }
 ];
-let current='dashboard';function renderNav(){document.getElementById('nav').innerHTML=modules.map((m,i)=>`<button data-id="${m.id}" class="${current===m.id?'active':''}" onclick="go('${m.id}')"><span class="symbol">${m.icon}</span>${m.name}${i>0&&i<11?`<span class="num">${String(i).padStart(2,'0')}</span>`:''}</button>`).join('')}
-function go(id){current=id;const m=modules.find(x=>x.id===id);if(!m)return;document.getElementById('sidebar').classList.remove('open');renderNav();document.getElementById('breadcrumb').textContent=m.name;document.getElementById('pageTitle').textContent=id==='dashboard'?'Portfolio Dashboard':m.name;document.getElementById('pageDesc').textContent=m.desc;['dashboard','profile','workspace'].forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==(id==='dashboard'?'dashboard':id==='profile'?'profile':'workspace')));if(id!=='dashboard'&&id!=='profile'){document.getElementById('moduleTitle').textContent=m.name;document.getElementById('moduleDesc').textContent=m.desc;document.getElementById('moduleIcon').textContent=m.icon;document.getElementById('moduleMessage').textContent=m.name+' — UI workspace';document.getElementById('moduleFeatures').innerHTML=(m.features||[]).map(f=>`<tr><td>${f}</td><td><span class="tag">Planned</span></td></tr>`).join('')}window.scrollTo(0,0)}
-function toast(msg){let e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');clearTimeout(window._toast);window._toast=setTimeout(()=>e.classList.remove('show'),3500)}
-function getProfile(){return Object.fromEntries(['investorName','investment','horizon','risk','goal','contribution'].map(id=>[id,document.getElementById(id).value]))}
-function saveProfile(){let p=getProfile();if(!p.investorName.trim()||Number(p.investment)<0||Number(p.horizon)<1||Number(p.contribution)<0){toast('Please enter valid profile values.');return}sessionStorage.setItem('ie591_demo_profile',JSON.stringify(p));document.getElementById('dashValue').textContent=Number(p.investment).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});toast('Demo profile saved for this browser session.')}
-function downloadDemo(){let p=getProfile();let data={mode:'UI_DEMO_ONLY',notice:'No analytics or investment recommendation has been calculated.',profile:p,skill_integration_count:0};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='ie591-demo-profile.json';a.click();URL.revokeObjectURL(url);toast('Demo JSON exported.')}
-document.getElementById('workflow').innerHTML=[['1','Investor Profile','profile'],['2','Market Data','market'],['3','Optimization','optimize'],['4','Risk & Simulation','risk'],['5','Decision Support','decision']].map(([n,t,id])=>`<button class="step" onclick="go('${id}')"><span class="circle">${n}</span><strong>${t}</strong><small>Preview workspace →</small></button>`).join('');
-const stored=sessionStorage.getItem('ie591_demo_profile');if(stored){try{let p=JSON.parse(stored);Object.keys(p).forEach(k=>{let el=document.getElementById(k);if(el)el.value=p[k]});document.getElementById('dashValue').textContent=Number(p.investment).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0})}catch(e){}}
+
+let current = "dashboard";
+
+function el(id) {
+  return document.getElementById(id);
+}
+
+function renderNav() {
+  const nav = el("nav");
+  nav.replaceChildren();
+
+  modules.forEach((m, index) => {
+    const button = document.createElement("button");
+    button.className = current === m.id ? "active" : "";
+
+    const symbol = document.createElement("span");
+    symbol.className = "symbol";
+    symbol.textContent = m.icon;
+
+    button.appendChild(symbol);
+    button.appendChild(document.createTextNode(m.name));
+
+    if (index > 0 && index < 11) {
+      const num = document.createElement("span");
+      num.className = "num";
+      num.textContent = String(index).padStart(2, "0");
+      button.appendChild(num);
+    }
+
+    button.addEventListener("click", () => go(m.id));
+    nav.appendChild(button);
+  });
+}
+
+function go(id) {
+  const module = modules.find(m => m.id === id);
+  if (!module) return;
+
+  current = id;
+
+  el("sidebar").classList.remove("open");
+  el("breadcrumb").textContent = module.name;
+  el("pageTitle").textContent =
+    id === "dashboard" ? "Portfolio Dashboard" : module.name;
+  el("pageDesc").textContent = module.desc;
+
+  ["dashboard", "profile", "workspace"].forEach(section => {
+    const visible =
+      id === "dashboard" ? "dashboard" :
+      id === "profile" ? "profile" : "workspace";
+
+    el(section).classList.toggle("hidden", section !== visible);
+  });
+
+  if (id !== "dashboard" && id !== "profile") {
+    el("moduleTitle").textContent = module.name;
+    el("moduleDesc").textContent = module.desc;
+    el("moduleMessage").textContent =
+      module.name + " — Workspace Preview";
+
+    const tbody = el("moduleFeatures");
+    tbody.replaceChildren();
+
+    (module.features || []).forEach(feature => {
+      const row = document.createElement("tr");
+      const name = document.createElement("td");
+      const status = document.createElement("td");
+
+      name.textContent = feature;
+      status.textContent = "Planned";
+
+      row.append(name, status);
+      tbody.appendChild(row);
+    });
+  }
+
+  renderNav();
+  window.scrollTo(0, 0);
+}
+
+function toast(message) {
+  const target = el("toast");
+  target.textContent = message;
+  target.classList.add("show");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer = setTimeout(() => {
+    target.classList.remove("show");
+  }, 3500);
+}
+
+function feedback(message, success) {
+  const target = el("apiFeedback");
+  target.textContent = message;
+  target.style.borderLeft =
+    "4px solid " + (success ? "#16a6a0" : "#dc684e");
+}
+
+function apiUrl(path) {
+  const base = el("apiBase").value.trim().replace(/\/$/, "");
+
+  if (!/^https?:\/\/[^/]+/i.test(base)) {
+    throw new Error("Enter a valid API URL.");
+  }
+
+  return base + path;
+}
+
+function getProfile() {
+  return {
+    investorId: el("investorId").value,
+    investorName: el("investorName").value,
+    investment: el("investment").value,
+    contribution: el("contribution").value,
+    horizon: el("horizon").value,
+    risk: el("risk").value,
+    goal: el("goal").value
+  };
+}
+
+function formToApi() {
+  const p = getProfile();
+
+  const initial = Number(p.investment);
+  const annual = Number(p.contribution);
+  const horizon = Number(p.horizon);
+
+  if (!p.investorId.trim() || !p.investorName.trim()) {
+    throw new Error("Investor ID and name are required.");
+  }
+
+  if (
+    p.investment.trim() === "" ||
+    p.contribution.trim() === "" ||
+    p.horizon.trim() === "" ||
+    !Number.isFinite(initial) ||
+    !Number.isFinite(annual) ||
+    initial < 0 ||
+    annual < 0 ||
+    !Number.isInteger(horizon) ||
+    horizon < 1 ||
+    horizon > 70
+  ) {
+    throw new Error(
+      "Enter valid investment amounts and a horizon of 1–70 years."
+    );
+  }
+
+  return {
+    investor_id: p.investorId.trim(),
+    investor_name: p.investorName.trim(),
+    initial_investment: initial,
+    annual_contribution: annual,
+    investment_horizon_years: horizon,
+    risk_tolerance: p.risk.toLowerCase(),
+    currency: "USD",
+    goals: []
+  };
+}
+
+function apiErrorMessage(data) {
+  if (!data) return "Request failed.";
+
+  if (typeof data.detail === "string") {
+    return data.detail;
+  }
+
+  if (Array.isArray(data.detail)) {
+    return data.detail.map(error =>
+      error.loc.join(".") + ": " + error.msg
+    ).join(" | ");
+  }
+
+  return "Unexpected API response.";
+}
+
+async function checkApi() {
+  try {
+    feedback("Checking backend connection...", true);
+
+    const response = await fetch(apiUrl("/api/health"));
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (data.status !== "healthy") {
+      throw new Error("Unexpected health response.");
+    }
+
+    feedback(
+      "Connected to FastAPI version " + data.version,
+      true
+    );
+
+    toast("Backend connection successful.");
+  } catch (error) {
+    feedback(
+      "Connection failed: " + error.message +
+      ". Confirm the backend is running and CORS is configured.",
+      false
+    );
+  }
+}
+
+async function saveProfile() {
+  const button = el("saveProfileBtn");
+
+  try {
+    const payload = formToApi();
+
+    button.disabled = true;
+    feedback("Submitting investor profile...", true);
+
+    const response = await fetch(
+      apiUrl("/api/investor-profile"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        "HTTP " + response.status + ": " +
+        apiErrorMessage(data)
+      );
+    }
+
+    if (data.status !== "created") {
+      throw new Error("Unexpected creation response.");
+    }
+
+    sessionStorage.setItem(
+      "ie591_demo_profile",
+      JSON.stringify(getProfile())
+    );
+
+    updateDashboard(payload.initial_investment);
+
+    feedback(
+      "Profile " + payload.investor_id +
+      " validated and created successfully. " +
+      "Storage: temporary server memory.",
+      true
+    );
+
+    toast("Investor profile submitted.");
+  } catch (error) {
+    feedback("Submission failed: " + error.message, false);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function loadProfile() {
+  try {
+    const id = el("investorId").value.trim();
+
+    if (!id) {
+      throw new Error("Enter an investor ID.");
+    }
+
+    feedback("Retrieving investor profile...", true);
+
+    const response = await fetch(
+      apiUrl("/api/investor-profile/" +
+        encodeURIComponent(id))
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        "HTTP " + response.status + ": " +
+        apiErrorMessage(data)
+      );
+    }
+
+    const p = data.profile;
+
+    el("investorName").value = p.investor_name;
+    el("investment").value = p.initial_investment;
+    el("contribution").value = p.annual_contribution;
+    el("horizon").value = p.investment_horizon_years;
+    el("risk").value =
+      p.risk_tolerance.charAt(0).toUpperCase() +
+      p.risk_tolerance.slice(1);
+
+    updateDashboard(p.initial_investment);
+
+    feedback(
+      "Retrieved investor " + p.investor_id +
+      " from the backend.",
+      true
+    );
+
+    toast("Investor profile retrieved.");
+  } catch (error) {
+    feedback("Retrieval failed: " + error.message, false);
+  }
+}
+
+function updateDashboard(amount) {
+  el("dashValue").textContent =
+    Number(amount).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0
+    });
+}
+
+function downloadDemo() {
+  const data = {
+    mode: "UI_DEMO_WITH_SKILL_1_API",
+    notice:
+      "Form values are not independently verified by this export. " +
+      "No portfolio optimization or recommendation is calculated.",
+    profile: getProfile(),
+    skills_integrated: 0
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "ie591-demo-profile.json";
+  link.click();
+
+  URL.revokeObjectURL(url);
+  toast("Demo JSON exported.");
+}
+
+function renderWorkflow() {
+  const steps = [
+    ["1", "Investor Profile", "profile"],
+    ["2", "Market Data", "market"],
+    ["3", "Optimization", "optimize"],
+    ["4", "Risk & Simulation", "risk"],
+    ["5", "Decision Support", "decision"]
+  ];
+
+  const container = el("workflow");
+
+  steps.forEach(([number, title, id]) => {
+    const button = document.createElement("button");
+    button.className = "step";
+
+    const circle = document.createElement("span");
+    circle.className = "circle";
+    circle.textContent = number;
+
+    const label = document.createElement("strong");
+    label.textContent = title;
+
+    const caption = document.createElement("small");
+    caption.textContent = "Open workspace";
+
+    button.append(circle, label, caption);
+    button.addEventListener("click", () => go(id));
+
+    container.appendChild(button);
+  });
+}
+
+function restoreDemo() {
+  try {
+    const saved = sessionStorage.getItem("ie591_demo_profile");
+    if (!saved) return;
+
+    const p = JSON.parse(saved);
+
+    for (const [key, value] of Object.entries(p)) {
+      if (el(key)) el(key).value = value;
+    }
+
+    if (p.investment !== undefined) {
+      updateDashboard(p.investment);
+    }
+  } catch (error) {
+    console.warn("Unable to restore demo profile.");
+  }
+}
+
 renderNav();
-</script></body></html>
+renderWorkflow();
+restoreDemo();
+</script>
+</body>
+</html>
