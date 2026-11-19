@@ -1,10 +1,10 @@
 
 """
-IE 591 — AI Portfolio Optimization
+IE 591 — Portfolio Intelligence
 Automated Backend Test Suite
 
-Stage 2: Skill #1 — Investor Profile Integration
-Version: 0.2.0
+Stage 3: Skill #2 — Market Intelligence Integration
+Version: 0.3.1
 
 Tests:
 - FastAPI application endpoints
@@ -14,6 +14,7 @@ Tests:
 - Portfolio allocation validation
 - Shared analysis contracts
 - Investor profile creation and retrieval
+- Market Intelligence API integration
 - API error handling
 
 Run from the repository root:
@@ -91,6 +92,7 @@ def test_health_endpoint():
     assert data["service"] == (
         "portfolio-intelligence-api"
     )
+    assert data["version"] == "0.3.1"
 
 
 def test_skills_endpoint():
@@ -104,19 +106,21 @@ def test_skills_endpoint():
     assert data["integrated"] == 0
     assert len(data["skills"]) == 10
 
-    # Skill #1 is currently being integrated.
-    assert data["skills"][0]["id"] == 1
-    assert data["skills"][0]["name"] == (
-        "Investor Profile"
-    )
-    assert data["skills"][0]["status"] == (
-        "integration_in_progress"
-    )
+    assert data["skills"][0] == {
+        "id": 1,
+        "name": "Investor Profile",
+        "status": "integration_in_progress",
+    }
 
-    # Skills #2 through #10 remain pending.
+    assert data["skills"][1] == {
+        "id": 2,
+        "name": "Market Intelligence",
+        "status": "integration_in_progress",
+    }
+
     assert all(
         skill["status"] == "pending_integration"
-        for skill in data["skills"][1:]
+        for skill in data["skills"][2:]
     )
 
 
@@ -127,9 +131,18 @@ def test_application_status():
 
     data = response.json()
 
-    assert data["stage"] == 2
+    assert data["stage"] == 3
     assert data["stage_name"] == (
-        "Skill #1 Integration"
+        "Skill #2 Integration"
+    )
+    assert data["frontend"] == (
+        "investor_profile_connected"
+    )
+    assert data["backend"] == (
+        "market_intelligence_api"
+    )
+    assert data["analytics"] == (
+        "market_engine_connected"
     )
     assert data["skills_integrated"] == 0
     assert data["professor_validation"] == "pending"
@@ -414,3 +427,48 @@ def test_missing_investor_profile_returns_404():
     assert response.json()["detail"] == (
         "Investor profile not found."
     )
+
+
+# ==================================================
+# SECTION 6 — SKILL #2 API INTEGRATION
+# ==================================================
+
+def test_market_status_endpoint():
+    response = client.get("/api/market/status")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["skill_id"] == 2
+    assert data["skill_name"] == (
+        "Market Intelligence"
+    )
+    assert data["engine"] == "available"
+    assert data["status"] == (
+        "integration_in_progress"
+    )
+    assert data["api_endpoint"] == (
+        "/api/market/analyze"
+    )
+    assert data["method"] == "POST"
+    assert data["external_data_fetching"] is False
+
+
+def test_market_analysis_invalid_request():
+    response = client.post(
+        "/api/market/analyze",
+        json={},
+    )
+
+    assert response.status_code == 422
+
+
+def test_market_analysis_endpoint_registered():
+    routes = {
+        route.path
+        for route in app.routes
+    }
+
+    assert "/api/market/analyze" in routes
+    assert "/api/market/status" in routes
