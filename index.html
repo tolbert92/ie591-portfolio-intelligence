@@ -5,338 +5,410 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IE 591 | Portfolio Intelligence</title>
+
 <style>
 :root {
-  --bg:#f5f7fb;
-  --panel:#fff;
-  --ink:#16243b;
-  --muted:#708096;
-  --line:#e6ebf2;
-  --nav:#101c30;
-  --accent:#3264e9;
-  --teal:#16a6a0;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --ink: #16243b;
+  --muted: #708096;
+  --line: #e6ebf2;
+  --nav: #101c30;
+  --accent: #3264e9;
+  --teal: #16a6a0;
+  --shadow: 0 8px 30px #16243b0a;
 }
-* { box-sizing:border-box; }
+
+* { box-sizing: border-box; }
+
 body {
-  margin:0;
-  font:14px/1.5 "Segoe UI",Arial,sans-serif;
-  background:var(--bg);
-  color:var(--ink);
+  margin: 0;
+  font: 14px/1.5 "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
 }
-.app { display:flex; min-height:100vh; }
+
+.app { display: flex; min-height: 100vh; }
+
 .sidebar {
-  width:258px;
-  flex-shrink:0;
-  background:var(--nav);
-  color:#e4ecfa;
-  padding:25px 16px;
-  display:flex;
-  flex-direction:column;
-  gap:24px;
+  width: 258px;
+  background: var(--nav);
+  color: #e4ecfa;
+  flex-shrink: 0;
+  padding: 25px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
-.brand { display:flex; align-items:center; gap:12px; }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+}
+
 .logo {
-  width:40px;
-  height:40px;
-  border-radius:12px;
-  background:linear-gradient(145deg,#5588ff,#19b3b2);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-size:21px;
-  font-weight:900;
+  width: 39px;
+  height: 39px;
+  background: linear-gradient(145deg, #5588ff, #19b3b2);
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 20px;
+  color: white;
 }
-.brand strong { display:block; font-size:16px; }
-.brand small { color:#9fb0c8; font-size:11px; }
+
+.brand strong { font-size: 16px; display: block; }
+.brand small { font-size: 11px; color: #9fb0c8; }
+
 .navtitle {
-  font-size:11px;
-  color:#8498b4;
-  letter-spacing:1.4px;
-  font-weight:800;
+  font-size: 10px;
+  color: #8498b4;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  padding: 0 13px;
 }
-.nav { display:grid; gap:4px; }
+
+.nav { display: grid; gap: 3px; }
+
 .nav button {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  width:100%;
-  padding:10px 12px;
-  background:transparent;
-  color:#aabbd3;
-  border:0;
-  border-radius:9px;
-  font:inherit;
-  text-align:left;
-  cursor:pointer;
+  border: 0;
+  background: none;
+  color: #aabbd3;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  font: inherit;
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  width: 100%;
 }
-.nav button:hover,.nav button.active {
-  background:#233858;
-  color:white;
+
+.nav button:hover,
+.nav button.active {
+  background: #233858;
+  color: white;
 }
-.nav .symbol { width:20px; text-align:center; }
-.nav .num {
-  margin-left:auto;
-  font-size:10px;
-  opacity:.6;
-}
+
+.nav .symbol { width: 20px; text-align: center; }
+.nav .num { margin-left: auto; font-size: 10px; opacity: .5; }
+
 .sidefoot {
-  margin-top:auto;
-  border-top:1px solid #314058;
-  padding-top:18px;
-  color:#a7b9d2;
-  font-size:12px;
+  margin-top: auto;
+  border-top: 1px solid #314058;
+  padding: 18px 10px 0;
+  color: #a7b9d2;
+  font-size: 12px;
 }
-.main { flex:1; min-width:0; }
+
+.main { flex: 1; min-width: 0; }
+
 .topbar {
-  min-height:78px;
-  background:#fff;
-  border-bottom:1px solid var(--line);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:15px 34px;
+  height: 78px;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 34px;
 }
-.crumb { color:var(--muted); }
-.crumb b { color:var(--ink); }
+
+.crumb { color: var(--muted); }
+.crumb b { color: var(--ink); }
+
 .pill {
-  background:#eaf6f3;
-  color:#18796e;
-  border-radius:30px;
-  padding:6px 12px;
-  font-size:11px;
-  font-weight:800;
+  background: #eaf6f3;
+  color: #18796e;
+  border-radius: 30px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 800;
 }
+
 .content {
-  max-width:1480px;
-  padding:32px 34px;
-  margin:auto;
+  padding: 32px 34px;
+  max-width: 1480px;
+  margin: auto;
 }
+
 .heading {
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:15px;
-  margin-bottom:23px;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 23px;
 }
+
 .eyebrow {
-  color:#6077ad;
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
+  color: #6077ad;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
-h1 { font-size:29px; margin:4px 0 6px; }
-h3 { margin:0 0 8px; font-size:17px; }
-.sub,.desc,.mini { color:var(--muted); }
-.desc,.mini { font-size:12px; }
-.actions { display:flex; gap:9px; flex-wrap:wrap; }
+
+.heading h1 {
+  font-size: 29px;
+  margin: 4px 0 6px;
+}
+
+.sub, .desc, .mini { color: var(--muted); }
+.desc, .mini { font-size: 12px; }
+
+.actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
 .btn {
-  background:var(--accent);
-  border:1px solid var(--accent);
-  color:#fff;
-  padding:10px 15px;
-  border-radius:9px;
-  font:inherit;
-  font-weight:700;
-  cursor:pointer;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
+
 .btn.secondary {
-  background:#fff;
-  color:var(--ink);
-  border-color:#dbe2ee;
+  background: white;
+  color: var(--ink);
+  border-color: #dbe2ee;
 }
-.btn:disabled { opacity:.5; cursor:not-allowed; }
+
+.btn:disabled { opacity: .5; cursor: wait; }
+
 .cards {
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:16px;
-  margin-bottom:20px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
 }
-.card,.panel {
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:14px;
-  box-shadow:0 8px 30px #16243b0a;
+
+.card, .panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
 }
-.card { padding:20px; }
-.card .k { color:var(--muted); font-size:12px; }
-.card .v { font-size:26px; font-weight:800; margin-top:6px; }
-.card .hint { color:var(--teal); font-size:11px; }
-.panel { padding:23px; margin-bottom:18px; }
+
+.card { padding: 20px; }
+.card .k { color: var(--muted); font-size: 12px; }
+.card .v { font-size: 26px; font-weight: 800; margin-top: 6px; }
+.card .hint { color: var(--teal); font-size: 11px; }
+
+.panel { padding: 23px; margin-bottom: 18px; }
+.panel h3 { margin: 0 0 5px; font-size: 16px; }
+
 .layout {
-  display:grid;
-  grid-template-columns:1.65fr 1fr;
-  gap:18px;
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 18px;
 }
-.chart { width:100%; height:auto; }
-.alloc { display:flex; align-items:center; gap:20px; }
+
+.chart { width: 100%; height: auto; }
+
+.alloc {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 .donut {
-  width:150px;
-  height:150px;
-  flex-shrink:0;
-  border-radius:50%;
-  background:conic-gradient(
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: conic-gradient(
     #3264e9 0 60%,
     #16a6a0 60% 90%,
     #e8a044 90% 100%
   );
-  position:relative;
+  position: relative;
+  flex-shrink: 0;
 }
+
 .donut::after {
-  content:"";
-  position:absolute;
-  inset:32px;
-  background:white;
-  border-radius:50%;
+  content: "";
+  position: absolute;
+  inset: 32px;
+  background: white;
+  border-radius: 50%;
 }
+
 .donut span {
-  position:absolute;
-  inset:0;
-  display:grid;
-  place-items:center;
-  z-index:1;
-  font-size:19px;
-  font-weight:800;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+  font-weight: 800;
+  font-size: 19px;
 }
-.alines { flex:1; }
+
+.alines { flex: 1; }
 .aline {
-  display:flex;
-  justify-content:space-between;
-  padding:9px 0;
-  border-bottom:1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
 }
+
 .workflow {
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:10px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
 }
+
 .step {
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:15px;
-  background:white;
-  cursor:pointer;
-  text-align:left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 15px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
 }
-.step strong { display:block; margin:6px 0; }
-.step small { color:var(--muted); }
+
+.step strong { display: block; margin: 6px 0; }
+.step small { color: var(--muted); }
+
 .circle {
-  width:29px;
-  height:29px;
-  border-radius:50%;
-  background:#eef2ff;
-  color:#3561d9;
-  display:grid;
-  place-items:center;
-  font-weight:800;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #3561d9;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
 }
+
 .formgrid {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
+
 .field label {
-  display:block;
-  color:#52627b;
-  font-weight:700;
-  font-size:12px;
-  margin-bottom:7px;
+  display: block;
+  color: #52627b;
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 7px;
 }
-.field input,.field select {
-  width:100%;
-  border:1px solid #dbe2ee;
-  border-radius:9px;
-  padding:11px 12px;
-  font:inherit;
-  background:#fff;
-  color:var(--ink);
+
+.field input, .field select, .field textarea {
+  width: 100%;
+  border: 1px solid #dbe2ee;
+  border-radius: 9px;
+  padding: 11px 12px;
+  font: inherit;
+  background: white;
+  color: var(--ink);
 }
-.note {
-  padding:14px 16px;
-  border-radius:10px;
-  background:#f0f5ff;
-  color:#46628d;
-  font-size:12px;
-  margin:16px 0;
+
+ .market-results { overflow-x: auto; }
+ .market-results table { min-width: 480px; }
+ .market-results td, .market-results th { font-variant-numeric: tabular-nums; }
+ .market-status { font-weight: 700; }
+ .market-status.good { color: #18796e; }
+ .market-status.bad { color: #a33d2c; }
+ .market-status.waiting { color: #52627b; }
+ .market-results .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+ @media(max-width:760px) { .market-results .cards { grid-template-columns: 1fr; } }
+ .note {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f0f5ff;
+  color: #46628d;
+  font-size: 12px;
+  margin: 16px 0;
 }
-.hidden { display:none!important; }
+
+.hidden { display: none !important; }
+
 .placeholder {
-  border:1px dashed #bfcbe0;
-  border-radius:12px;
-  padding:35px;
-  text-align:center;
-  background:#fbfcff;
+  border: 1px dashed #bfcbe0;
+  border-radius: 12px;
+  padding: 35px;
+  text-align: center;
+  background: #fbfcff;
 }
-.placeholder p { color:var(--muted); }
-.table {
-  width:100%;
-  border-collapse:collapse;
+
+.placeholder p { color: var(--muted); }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  padding: 13px 11px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
 }
-.table th,.table td {
-  padding:13px 11px;
-  border-bottom:1px solid var(--line);
-  text-align:left;
-}
-.table-wrap { overflow-x:auto; }
+
 .tag {
-  display:inline-block;
-  background:#fff5df;
-  color:#976517;
-  padding:4px 8px;
-  border-radius:7px;
-  font-size:11px;
-  font-weight:700;
+  display: inline-block;
+  background: #fff5df;
+  color: #976517;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
 }
+
 .toast {
-  position:fixed;
-  bottom:24px;
-  right:24px;
-  background:#14243e;
-  color:white;
-  padding:14px 18px;
-  border-radius:11px;
-  display:none;
-  max-width:350px;
-  z-index:10;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #14243e;
+  color: white;
+  padding: 14px 18px;
+  border-radius: 11px;
+  display: none;
+  max-width: 330px;
 }
-.toast.show { display:block; }
-.mobilemenu { display:none; }
-.market-results .cards {
-  grid-template-columns:repeat(3,minmax(0,1fr));
+
+.toast.show { display: block; }
+
+.mobilemenu { display: none; }
+
+@media(max-width: 1100px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .layout { grid-template-columns: 1fr; }
+  .workflow { grid-template-columns: repeat(3, 1fr); }
 }
-.market-status {
-  font-weight:700;
-  color:#18796e;
+
+@media(max-width: 760px) {
+  .sidebar { display: none; position: fixed; z-index: 5; height: 100vh; overflow: auto; }
+  .sidebar.open { display: flex; }
+  .mobilemenu { display: inline-block; }
+  .topbar { padding: 0 16px; }
+  .content { padding: 22px 15px; }
+  .heading { flex-direction: column; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .workflow { grid-template-columns: repeat(2, 1fr); }
+  .formgrid { grid-template-columns: 1fr; }
+  .alloc { flex-direction: column; }
 }
-@media(max-width:1100px) {
-  .cards { grid-template-columns:repeat(2,1fr); }
-  .layout { grid-template-columns:1fr; }
-  .workflow { grid-template-columns:repeat(3,1fr); }
-}
-@media(max-width:760px) {
-  .sidebar {
-    display:none;
-    position:fixed;
-    z-index:5;
-    height:100vh;
-    overflow:auto;
-  }
-  .sidebar.open { display:flex; }
-  .mobilemenu { display:inline-block; }
-  .topbar { padding:15px; }
-  .content { padding:22px 15px; }
-  .heading { flex-direction:column; }
-  .cards { grid-template-columns:repeat(2,1fr); }
-  .market-results .cards { grid-template-columns:1fr; }
-  .workflow { grid-template-columns:repeat(2,1fr); }
-  .formgrid { grid-template-columns:1fr; }
-  .alloc { flex-direction:column; }
-}
+
+/* Skill #3 — Portfolio Optimization */
+.optimization-results .cards { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.optimization-status { font-weight:700; }
+.opt-chart { width:100%; min-height:250px; border:1px solid var(--line); border-radius:10px; background:#fff; }
+.opt-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:12px; color:var(--muted); }
+.opt-legend span::before { content:""; display:inline-block; width:11px; height:11px; margin-right:6px; border-radius:50%; background:#3264e9; }
+.opt-legend span:last-child::before { background:#16a6a0; }
+.opt-meta { font-size:12px; color:var(--muted); margin-top:12px; }
+@media(max-width:760px) { .optimization-results .cards { grid-template-columns:1fr; } }
 </style>
 </head>
-<body>
 
+<body>
 <div class="app">
+
 <aside class="sidebar" id="sidebar">
   <div class="brand">
     <div class="logo">P</div>
@@ -352,10 +424,9 @@ h3 { margin:0 0 8px; font-size:17px; }
   </div>
 
   <div class="sidefoot">
-    Skills #1–2 — API Integration
+    Skills #1–3 — API Integration
     <p>10 skills · Development mode</p>
-    <p>University course project<br>
-    Educational use only</p>
+    <p>University course project<br>Educational use only</p>
   </div>
 </aside>
 
@@ -374,6 +445,7 @@ h3 { margin:0 0 8px; font-size:17px; }
 </header>
 
 <div class="content">
+
 <div class="heading">
   <div>
     <div class="eyebrow">Integrated Investment Analytics</div>
@@ -394,309 +466,294 @@ h3 { margin:0 0 8px; font-size:17px; }
 
 <!-- DASHBOARD -->
 <section id="dashboard">
-  <div class="cards">
-    <div class="card">
-      <div class="k">Portfolio Value</div>
-      <div class="v" id="dashValue">$250,000</div>
-      <div class="hint">Synthetic example</div>
-    </div>
-    <div class="card">
-      <div class="k">Illustrative Annual Return</div>
-      <div class="v">7.4%</div>
-      <div class="hint">Not a forecast</div>
-    </div>
-    <div class="card">
-      <div class="k">Illustrative Volatility</div>
-      <div class="v">12.1%</div>
-      <div class="hint">Sample metric</div>
-    </div>
-    <div class="card">
-      <div class="k">Skills Connected</div>
-      <div class="v">0 / 10</div>
-      <div class="hint">Skills #1–2 in progress</div>
-    </div>
+
+<div class="cards">
+  <div class="card">
+    <div class="k">Portfolio Value</div>
+    <div class="v" id="dashValue">$250,000</div>
+    <div class="hint">Synthetic example</div>
+  </div>
+  <div class="card">
+    <div class="k">Illustrative Annual Return</div>
+    <div class="v">7.4%</div>
+    <div class="hint">Not a forecast</div>
+  </div>
+  <div class="card">
+    <div class="k">Illustrative Volatility</div>
+    <div class="v">12.1%</div>
+    <div class="hint">Sample metric</div>
+  </div>
+  <div class="card">
+    <div class="k">Skills Connected</div>
+    <div class="v">0 / 10</div>
+    <div class="hint">Skills #1–3 in progress</div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="panel">
+    <h3>Portfolio Performance Overview</h3>
+    <p class="desc">Illustrative performance index</p>
+    <svg class="chart" viewBox="0 0 680 270"
+      role="img" aria-label="Illustrative portfolio performance chart">
+      <g stroke="#e9edf4">
+        <path d="M40 30H650 M40 85H650 M40 140H650 M40 195H650 M40 250H650"/>
+      </g>
+      <path
+        d="M40 220 L92 207 L143 212 L194 178
+           L245 186 L296 150 L347 161 L398 128
+           L449 135 L500 90 L551 103 L602 64 L650 47"
+        fill="none"
+        stroke="#3264e9"
+        stroke-width="3.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+      <g fill="#8b98ac" font-size="12">
+        <text x="40" y="267">Jan</text>
+        <text x="190" y="267">Mar</text>
+        <text x="345" y="267">Jun</text>
+        <text x="500" y="267">Sep</text>
+        <text x="625" y="267">Dec</text>
+      </g>
+    </svg>
+    <p class="mini">
+      This chart is demonstration data, not actual portfolio performance.
+    </p>
   </div>
 
-  <div class="layout">
+  <div>
     <div class="panel">
-      <h3>Portfolio Performance Overview</h3>
-      <p class="desc">Illustrative performance index</p>
-      <svg class="chart" viewBox="0 0 680 270"
-        role="img" aria-label="Illustrative performance chart">
-        <g stroke="#e9edf4">
-          <path d="M40 30H650 M40 85H650 M40 140H650 M40 195H650 M40 250H650"/>
-        </g>
-        <path
-          d="M40 220 L92 207 L143 212 L194 178 L245 186
-             L296 150 L347 161 L398 128 L449 135
-             L500 90 L551 103 L602 64 L650 47"
-          fill="none"
-          stroke="#3264e9"
-          stroke-width="3.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"/>
-        <g fill="#8b98ac" font-size="12">
-          <text x="40" y="267">Jan</text>
-          <text x="190" y="267">Mar</text>
-          <text x="345" y="267">Jun</text>
-          <text x="500" y="267">Sep</text>
-          <text x="625" y="267">Dec</text>
-        </g>
-      </svg>
-      <p class="mini">
-        Demonstration data, not actual portfolio performance.
-      </p>
-    </div>
-
-    <div>
-      <div class="panel">
-        <h3>Asset Allocation</h3>
-        <p class="desc">Illustrative portfolio composition</p>
-        <div class="alloc">
-          <div class="donut"><span>100%</span></div>
-          <div class="alines">
-            <div class="aline"><span>Stocks</span><b>60%</b></div>
-            <div class="aline"><span>Bonds</span><b>30%</b></div>
-            <div class="aline"><span>Cash</span><b>10%</b></div>
-          </div>
+      <h3>Asset Allocation</h3>
+      <p class="desc">Illustrative portfolio composition</p>
+      <div class="alloc">
+        <div class="donut"><span>100%</span></div>
+        <div class="alines">
+          <div class="aline"><span>Stocks</span><b>60%</b></div>
+          <div class="aline"><span>Bonds</span><b>30%</b></div>
+          <div class="aline"><span>Cash</span><b>10%</b></div>
         </div>
       </div>
-      <div class="panel">
-        <h3>Integration Readiness</h3>
-        <p class="desc">
-          Investor Profile and Market Intelligence API workflows
-          are undergoing integration validation.
-        </p>
-        <p class="mini">0 of 10 skills fully integrated</p>
-        <button class="btn secondary" onclick="go('profile')">
-          Open Investor Profile
-        </button>
-      </div>
+    </div>
+    <div class="panel">
+      <h3>Integration Readiness</h3>
+      <p class="desc">Skill #1 API tested; Skill #2 interface in progress</p>
+      <p class="mini">0 of 10 skills fully integrated</p>
+      <button class="btn secondary" onclick="go('profile')">
+        Open Investor Profile
+      </button>
     </div>
   </div>
+</div>
 
-  <h3>Analysis Workflow</h3>
-  <div class="workflow" id="workflow"></div>
+<h3>Analysis Workflow</h3>
+<div class="workflow" id="workflow"></div>
+
 </section>
 
-<!-- SKILL 1: INVESTOR PROFILE -->
+<!-- INVESTOR PROFILE -->
 <section id="profile" class="hidden">
-  <div class="panel">
-    <h3>Investor Profile Builder</h3>
-    <p class="desc">
-      Skill #1 — Submit and retrieve synthetic investor profiles
-      through the Python FastAPI backend.
-    </p>
 
-    <div class="formgrid">
-      <div class="field">
-        <label for="investorId">Investor ID</label>
-        <input id="investorId" value="SYNTHETIC-001" maxlength="100">
-      </div>
-      <div class="field">
-        <label for="investorName">Investor Name</label>
-        <input id="investorName" value="Synthetic Investor A">
-      </div>
-      <div class="field">
-        <label for="investment">Starting Portfolio ($)</label>
-        <input id="investment" type="number" min="0" value="250000">
-      </div>
-      <div class="field">
-        <label for="horizon">Investment Horizon (years)</label>
-        <input id="horizon" type="number" min="1" max="70" value="25">
-      </div>
-      <div class="field">
-        <label for="risk">Risk Tolerance</label>
-        <select id="risk">
-          <option>Conservative</option>
-          <option selected>Moderate</option>
-          <option>Aggressive</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="goal">Primary Goal (UI preview)</label>
-        <select id="goal">
-          <option selected>Retirement</option>
-          <option>Wealth accumulation</option>
-          <option>Education funding</option>
-          <option>Capital preservation</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="contribution">Annual Contribution ($)</label>
-        <input id="contribution" type="number" min="0" value="12000">
-      </div>
-    </div>
+<div class="panel">
+  <h3>Investor Profile Builder</h3>
+  <p class="desc">
+    Skill #1 — Submit and retrieve synthetic investor profiles
+    through the Python FastAPI backend.
+  </p>
 
-    <div class="note">
-      Synthetic test data only. The backend uses temporary
-      memory storage. Records disappear when the server restarts.
-      Primary Goal is a UI preview and is not submitted to the API.
+  <div class="formgrid">
+    <div class="field">
+      <label for="investorId">Investor ID</label>
+      <input id="investorId" value="SYNTHETIC-001" maxlength="100">
     </div>
 
     <div class="field">
-      <label for="apiBase">FastAPI Server URL</label>
-      <input id="apiBase"
-        value="https://ie591-portfolio-intelligence.onrender.com"
-        placeholder="http://127.0.0.1:8000">
+      <label for="investorName">Investor Name</label>
+      <input id="investorName" value="Synthetic Investor A">
     </div>
 
-    <div class="note" id="apiFeedback"
-      role="status" aria-live="polite">
-      API not checked.
+    <div class="field">
+      <label for="investment">Starting Portfolio ($)</label>
+      <input id="investment" type="number" min="0" value="250000">
     </div>
 
-    <div class="actions">
-      <button class="btn secondary" onclick="checkApi()">
-        Check API Connection
-      </button>
-      <button class="btn" id="saveProfileBtn" onclick="saveProfile()">
-        Submit Profile to API
-      </button>
-      <button class="btn secondary" onclick="loadProfile()">
-        Retrieve Profile
-      </button>
-      <button class="btn secondary" onclick="go('market')">
-        Next: Market Intelligence
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- SKILL 2: MARKET INTELLIGENCE -->
-<section id="market" class="hidden">
-  <div class="panel">
-    <h3>Market Intelligence — Analytical Workspace</h3>
-    <p class="desc">
-      Skill #2 — Analyze historical price observations using
-      the hosted Python calculation engine.
-    </p>
-
-    <div class="note">
-      Educational demonstration only. All supplied asset prices
-      are synthetic. They do not represent actual VTI, BND,
-      or SGOV historical prices or investment recommendations.
+    <div class="field">
+      <label for="horizon">Investment Horizon (years)</label>
+      <input id="horizon" type="number" min="1" max="70" value="25">
     </div>
 
-    <div class="formgrid">
-      <div class="field">
-        <label for="marketAnalysisId">Analysis ID</label>
-        <input id="marketAnalysisId" value="IE591-GATE34-TEST">
-      </div>
-      <div class="field">
-        <label for="marketDataset">Validation Dataset</label>
-        <select id="marketDataset">
-          <option value="two">Two Assets — Equity and Bonds</option>
-          <option value="three">Three Assets — Equity, Bonds and Cash</option>
-        </select>
-      </div>
+    <div class="field">
+      <label for="risk">Risk Tolerance</label>
+      <select id="risk">
+        <option>Conservative</option>
+        <option selected>Moderate</option>
+        <option>Aggressive</option>
+      </select>
     </div>
 
-    <div class="note">
-      Frequency: Monthly · Return method: Simple ·
-      Annualization periods: 12 · Minimum common
-      return periods: 3.
+    <div class="field">
+      <label for="goal">Primary Goal (UI preview)</label>
+      <select id="goal">
+        <option selected>Retirement</option>
+        <option>Wealth accumulation</option>
+        <option>Education funding</option>
+        <option>Capital preservation</option>
+      </select>
     </div>
 
-    <div id="marketFeedback" class="note"
-      role="status" aria-live="polite">
-      Market Intelligence engine not yet checked.
-    </div>
-
-    <div class="actions">
-      <button class="btn secondary" id="marketCheckBtn"
-        onclick="checkMarketApi()">
-        Check Market Engine
-      </button>
-      <button class="btn" id="marketAnalyzeBtn"
-        onclick="runMarketAnalysis()">
-        Analyze Market
-      </button>
-      <button class="btn secondary" id="marketExportBtn"
-        onclick="exportMarketAnalysis()" disabled>
-        Export Analysis JSON
-      </button>
+    <div class="field">
+      <label for="contribution">Annual Contribution ($)</label>
+      <input id="contribution" type="number" min="0" value="12000">
     </div>
   </div>
 
-  <div id="marketResults" class="market-results hidden">
-    <div class="cards">
-      <div class="card">
-        <div class="k">Analysis Status</div>
-        <div class="v market-status" id="marketStatusValue">—</div>
-        <div class="hint" id="marketQualityValue">—</div>
-      </div>
-      <div class="card">
-        <div class="k">Assets Analyzed</div>
-        <div class="v" id="marketAssetCount">—</div>
-        <div class="hint">Validated asset statistics</div>
-      </div>
-      <div class="card">
-        <div class="k">Downstream Ready</div>
-        <div class="v" id="marketReady">—</div>
-        <div class="hint">Eligibility for subsequent skills</div>
-      </div>
-    </div>
+  <div class="note">
+    Synthetic test data only. The backend currently uses temporary
+    memory storage. Records disappear when the server restarts.
+    The Primary Goal field is a UI preview and is not yet included
+    in the submitted API profile.
+  </div>
 
-    <div class="panel">
-      <h3>Asset Statistics</h3>
-      <p class="desc">
-        Calculated by the hosted FastAPI Market Intelligence engine.
-      </p>
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Asset</th>
-              <th>Annualized Return</th>
-              <th>Annualized Volatility</th>
-              <th>Cumulative Return</th>
-              <th>Return Periods</th>
-            </tr>
-          </thead>
-          <tbody id="marketStatsBody"></tbody>
-        </table>
-      </div>
-    </div>
+  <div class="field">
+    <label for="apiBase">FastAPI Server URL</label>
+    <input id="apiBase" value="https://ie591-portfolio-intelligence.onrender.com"
+      placeholder="http://127.0.0.1:8000">
+  </div>
 
-    <div class="layout">
-      <div class="panel">
-        <h3>Correlation Matrix</h3>
-        <p class="desc">
-          Pairwise correlation of aligned asset returns.
-        </p>
-        <div class="table-wrap" id="marketCorrelation"></div>
-      </div>
-      <div class="panel">
-        <h3>Covariance Matrix</h3>
-        <p class="desc">
-          Annualized covariance of aligned asset returns.
-        </p>
-        <div class="table-wrap" id="marketCovariance"></div>
-      </div>
-    </div>
+  <div class="note" id="apiFeedback" role="status" aria-live="polite">
+    API not checked. Start the backend before submitting.
+  </div>
 
-    <div class="panel">
-      <h3>Data Quality and Provenance</h3>
-      <p class="desc" id="marketQualityDetails"></p>
-      <div class="note" id="marketIssues"></div>
-    </div>
+  <div class="actions">
+    <button class="btn secondary" onclick="checkApi()">
+      Check API Connection
+    </button>
 
-    <button class="btn secondary" onclick="go('optimize')">
-      Preview Next Skill: Portfolio Optimization
+    <button class="btn" id="saveProfileBtn" onclick="saveProfile()">
+      Submit Profile to API
+    </button>
+
+    <button class="btn secondary" onclick="loadProfile()">
+      Retrieve Profile
+    </button>
+
+    <button class="btn secondary" onclick="go('market')">
+      Next: Market Intelligence
     </button>
   </div>
+</div>
 </section>
 
-<!-- FUTURE SKILLS -->
+<!-- MARKET INTELLIGENCE -->
+<section id="market" class="hidden">
+  <div class="panel">
+    <h3>Market Intelligence — Synthetic Data Analysis</h3>
+    <p class="desc">Skill #2 — Submit historical observations to the hosted calculation engine. Results are educational, not investment recommendations.</p>
+    <div class="formgrid">
+      <div class="field">
+        <label for="marketDataset">Validation dataset</label>
+        <select id="marketDataset">
+          <option value="two" selected>VTI + BND — 4 monthly price dates</option>
+          <option value="three">VTI + BND + SGOV — 4 monthly price dates</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="marketAnalysisId">Analysis ID</label>
+        <input id="marketAnalysisId" value="IE591-MARKET-DEMO" maxlength="120">
+      </div>
+    </div>
+    <div class="note">Prices are invented for reproducible API validation. The dataset has only three return periods; results are not reliable market estimates. No external data provider is contacted.</div>
+    <div class="actions">
+      <button class="btn secondary" id="marketCheckBtn" onclick="checkMarketApi()">Check Market Engine</button>
+      <button class="btn" id="marketAnalyzeBtn" onclick="runMarketAnalysis()">Analyze Market</button>
+      <button class="btn secondary" id="marketExportBtn" onclick="exportMarketAnalysis()" disabled>Export Analysis JSON</button>
+      <button class="btn secondary" onclick="go('optimize')">Next: Portfolio Optimization</button>
+    </div>
+    <div class="note" id="marketFeedback" role="status" aria-live="polite">Select a synthetic dataset and click Analyze Market. The hosted API address is configured in Investor Profile.</div>
+  </div>
+  <div id="marketResults" class="market-results hidden">
+    <div class="cards">
+      <div class="card"><div class="k">Analysis status</div><div class="v" id="marketStatusValue">—</div><div class="hint" id="marketQualityValue">Data quality pending</div></div>
+      <div class="card"><div class="k">Assets analyzed</div><div class="v" id="marketAssetCount">—</div><div class="hint">Synthetic assets</div></div>
+      <div class="card"><div class="k">Downstream ready</div><div class="v" id="marketReady">—</div><div class="hint">For subsequent skill integration</div></div>
+    </div>
+    <div class="panel">
+      <h3>Asset Statistics</h3>
+      <p class="desc">Annualized arithmetic return and sample volatility; cumulative return over the supplied price window.</p>
+      <table class="table"><thead><tr><th>Asset</th><th>Return (annualized)</th><th>Volatility (annualized)</th><th>Cumulative return</th><th>Periods</th></tr></thead><tbody id="marketStatsBody"></tbody></table>
+    </div>
+    <div class="layout">
+      <div class="panel"><h3>Correlation Matrix</h3><div id="marketCorrelation"></div></div>
+      <div class="panel"><h3>Covariance Matrix (annualized)</h3><div id="marketCovariance"></div></div>
+    </div>
+    <div class="panel">
+      <h3>Quality and Provenance</h3>
+      <div id="marketQualityDetails" class="mini"></div>
+      <h3 style="margin-top:18px">Quality Issues</h3>
+      <div id="marketIssues" class="mini"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SKILL 3: PORTFOLIO OPTIMIZATION -->
+<section id="optimize" class="hidden">
+  <div class="panel">
+    <h3>Portfolio Optimization — Analytical Workspace</h3>
+    <p class="desc">Skill #3 — Run constrained optimization and calculate an efficient frontier using the hosted FastAPI engine.</p>
+    <div class="note">Educational synthetic examples only. Asset returns and covariance assumptions below are illustrative, not live market estimates or financial advice. This stage uses an independent validated synthetic dataset; automatic Skill #2 handoff is not yet implemented.</div>
+    <div class="formgrid">
+      <div class="field"><label for="optimizationId">Optimization ID</label><input id="optimizationId" value="IE591-OPT-DEMO" maxlength="120"></div>
+      <div class="field"><label for="optimizationDataset">Synthetic asset universe</label><select id="optimizationDataset" onchange="invalidateOptimization()"><option value="two">Two assets — Equity and Bonds</option><option value="three">Three assets — Equity, Bonds and Cash</option></select></div>
+      <div class="field"><label for="optimizationObjective">Optimization objective</label><select id="optimizationObjective" onchange="invalidateOptimization()"><option value="minimum_variance">Minimum variance</option><option value="maximum_sharpe">Maximum Sharpe ratio</option></select></div>
+      <div class="field"><label for="optimizationRiskFree">Annual risk-free rate (%)</label><input id="optimizationRiskFree" type="number" min="-10" max="50" step="0.1" value="2" onchange="invalidateOptimization()"></div>
+      <div class="field"><label for="optimizationMinEquity">Minimum equity allocation (%)</label><input id="optimizationMinEquity" type="number" min="0" max="100" step="1" value="0" onchange="invalidateOptimization()"></div>
+      <div class="field"><label for="optimizationMaxEquity">Maximum equity allocation (%)</label><input id="optimizationMaxEquity" type="number" min="0" max="100" step="1" value="100" onchange="invalidateOptimization()"></div>
+      <div class="field"><label for="optimizationMinReturn">Minimum portfolio annual return (%) — optional</label><input id="optimizationMinReturn" type="number" step="0.1" placeholder="No minimum" onchange="invalidateOptimization()"></div>
+      <div class="field"><label for="optimizationMaxVolatility">Maximum annual volatility (%) — optional</label><input id="optimizationMaxVolatility" type="number" min="0" step="0.1" placeholder="No maximum" onchange="invalidateOptimization()"></div>
+      <div class="field"><label for="optimizationFrontierPoints">Efficient frontier points (2–200)</label><input id="optimizationFrontierPoints" type="number" min="2" max="200" step="1" value="15" onchange="invalidateOptimization()"></div>
+    </div>
+    <div id="optimizationFeedback" class="note" role="status" aria-live="polite">Optimization engine not yet checked.</div>
+    <div class="actions">
+      <button class="btn secondary" id="optimizationCheckBtn" onclick="checkOptimizationApi()">Check Optimization Engine</button>
+      <button class="btn" id="optimizationSolveBtn" onclick="runOptimization()">Run Optimization</button>
+      <button class="btn secondary" id="optimizationFrontierBtn" onclick="runOptimizationFrontier()">Generate Efficient Frontier</button>
+      <button class="btn secondary" id="optimizationExportBtn" onclick="exportOptimization()" disabled>Export Optimization JSON</button>
+    </div>
+  </div>
+  <div id="optimizationResults" class="optimization-results hidden">
+    <div class="cards">
+      <div class="card"><div class="k">Expected Annual Return</div><div class="v" id="optimizationReturn">—</div><div class="hint">Model-implied, synthetic</div></div>
+      <div class="card"><div class="k">Annualized Volatility</div><div class="v" id="optimizationVolatility">—</div><div class="hint">Model-implied risk</div></div>
+      <div class="card"><div class="k">Sharpe Ratio</div><div class="v" id="optimizationSharpe">—</div><div class="hint">Relative to selected risk-free rate</div></div>
+    </div>
+    <div class="panel">
+      <h3>Optimized Asset Allocation</h3>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Asset</th><th>Optimized Weight</th></tr></thead><tbody id="optimizationAllocations"></tbody></table></div>
+      <p class="opt-meta" id="optimizationProvenance"></p>
+    </div>
+  </div>
+  <div id="optimizationFrontierResults" class="hidden">
+    <div class="panel">
+      <h3>Efficient Frontier — Risk versus Return</h3>
+      <p class="desc">Each point is calculated by the backend solver. Horizontal axis: annualized volatility; vertical axis: expected annual return.</p>
+      <svg id="optimizationFrontierChart" class="opt-chart" viewBox="0 0 760 340" role="img" aria-label="Efficient frontier risk-return plot"></svg>
+      <div class="opt-legend"><span>Efficient frontier</span><span>Selected optimized portfolio</span></div>
+      <p class="opt-meta" id="optimizationFrontierSummary"></p>
+    </div>
+    <div class="panel"><h3>Efficient Frontier Points</h3><div class="table-wrap"><table class="table"><thead><tr><th>Target Return</th><th>Calculated Return</th><th>Annualized Volatility</th></tr></thead><tbody id="optimizationFrontierTable"></tbody></table></div></div>
+  </div>
+</section>
+
+<!-- OTHER SKILLS -->
 <section id="workspace" class="hidden">
   <div class="panel">
     <h3 id="moduleTitle"></h3>
     <p class="desc" id="moduleDesc"></p>
+
     <div class="placeholder">
-      <h3 id="moduleMessage">Workspace Preview</h3>
+      <h3 id="moduleMessage">Workspace preview</h3>
       <p>
-        This workspace is prepared for future analytical
+        This skill workspace is prepared for future analytical
         engine integration. No calculations are being performed.
       </p>
       <span class="tag">Awaiting integration</span>
@@ -729,127 +786,127 @@ h3 { margin:0 0 8px; font-size:17px; }
 
 const modules = [
   {
-    id:"dashboard",
-    name:"Dashboard",
-    icon:"▦",
-    desc:"Portfolio overview and workflow"
+    id: "dashboard",
+    name: "Dashboard",
+    icon: "▦",
+    desc: "Portfolio overview and workflow"
   },
   {
-    id:"profile",
-    name:"Investor Profile",
-    icon:"♙",
-    desc:"Investor goals, constraints and risk preferences",
-    features:[
+    id: "profile",
+    name: "Investor Profile",
+    icon: "♙",
+    desc: "Investor goals, constraints and risk preferences",
+    features: [
       "Profile validation",
       "Financial goal management",
       "Investor data persistence"
     ]
   },
   {
-    id:"market",
-    name:"Market Intelligence",
-    icon:"▤",
-    desc:"Market evidence and financial assumptions",
-    features:[
+    id: "market",
+    name: "Market Intelligence",
+    icon: "▤",
+    desc: "Market evidence and financial assumptions",
+    features: [
       "Asset universe selection",
       "Market data import",
       "Assumption provenance"
     ]
   },
   {
-    id:"optimize",
-    name:"Portfolio Optimization",
-    icon:"◎",
-    desc:"Portfolio construction and efficient frontier",
-    features:[
+    id: "optimize",
+    name: "Portfolio Optimization",
+    icon: "◎",
+    desc: "Portfolio construction and efficient frontier",
+    features: [
       "Allocation constraints",
       "Optimization engine",
       "Efficient frontier"
     ]
   },
   {
-    id:"risk",
-    name:"Risk Assessment",
-    icon:"◇",
-    desc:"Portfolio risk and downside analysis",
-    features:[
+    id: "risk",
+    name: "Risk Assessment",
+    icon: "◇",
+    desc: "Portfolio risk and downside analysis",
+    features: [
       "Volatility and drawdown",
       "Value at Risk",
       "Risk attribution"
     ]
   },
   {
-    id:"charts",
-    name:"Portfolio Visualization",
-    icon:"▥",
-    desc:"Two-dimensional portfolio visualizations",
-    features:[
+    id: "charts",
+    name: "Portfolio Visualization",
+    icon: "▥",
+    desc: "Two-dimensional portfolio visualizations",
+    features: [
       "Allocation charts",
       "Risk-return charts",
       "Performance comparison"
     ]
   },
   {
-    id:"3d",
-    name:"3D Portfolio Explorer",
-    icon:"⬡",
-    desc:"Three-dimensional portfolio analysis",
-    features:[
+    id: "3d",
+    name: "3D Portfolio Explorer",
+    icon: "⬡",
+    desc: "Three-dimensional portfolio analysis",
+    features: [
       "3D visualization",
       "Camera and filtering controls",
       "Chart export"
     ]
   },
   {
-    id:"forward",
-    name:"Forward Testing",
-    icon:"◷",
-    desc:"Paper portfolio testing",
-    features:[
+    id: "forward",
+    name: "Forward Testing",
+    icon: "◷",
+    desc: "Paper portfolio testing",
+    features: [
       "Forward-test scenarios",
       "Portfolio tracking",
       "Benchmark comparison"
     ]
   },
   {
-    id:"monte",
-    name:"Monte Carlo",
-    icon:"≋",
-    desc:"Stochastic portfolio outcomes",
-    features:[
+    id: "monte",
+    name: "Monte Carlo",
+    icon: "≋",
+    desc: "Stochastic portfolio outcomes",
+    features: [
       "Simulation parameters",
       "Outcome distributions",
       "Goal probabilities"
     ]
   },
   {
-    id:"compare",
-    name:"Strategy Comparison",
-    icon:"⇄",
-    desc:"Portfolio strategy comparison",
-    features:[
+    id: "compare",
+    name: "Strategy Comparison",
+    icon: "⇄",
+    desc: "Portfolio strategy comparison",
+    features: [
       "Strategy eligibility",
       "Multi-criteria comparison",
       "Ranking robustness"
     ]
   },
   {
-    id:"decision",
-    name:"Decision Support",
-    icon:"✧",
-    desc:"Evidence-grounded investment decision support",
-    features:[
+    id: "decision",
+    name: "Decision Support",
+    icon: "✧",
+    desc: "Evidence-grounded investment decision support",
+    features: [
       "Goal intelligence",
       "Scenario robustness",
       "Evidence-based explanations"
     ]
   },
   {
-    id:"reports",
-    name:"Reports & Validation",
-    icon:"▧",
-    desc:"Reports, evidence and academic acceptance",
-    features:[
+    id: "reports",
+    name: "Reports & Validation",
+    icon: "▧",
+    desc: "Reports, evidence and academic acceptance",
+    features: [
       "PDF and JSON exports",
       "Evidence lineage",
       "Professor validation cases"
@@ -858,7 +915,6 @@ const modules = [
 ];
 
 let current = "dashboard";
-let lastMarketAnalysis = null;
 
 function el(id) {
   return document.getElementById(id);
@@ -868,31 +924,25 @@ function renderNav() {
   const nav = el("nav");
   nav.replaceChildren();
 
-  modules.forEach((module,index) => {
+  modules.forEach((m, index) => {
     const button = document.createElement("button");
-    button.className =
-      current === module.id ? "active" : "";
+    button.className = current === m.id ? "active" : "";
 
     const symbol = document.createElement("span");
     symbol.className = "symbol";
-    symbol.textContent = module.icon;
+    symbol.textContent = m.icon;
 
     button.appendChild(symbol);
-    button.appendChild(
-      document.createTextNode(module.name)
-    );
+    button.appendChild(document.createTextNode(m.name));
 
     if (index > 0 && index < 11) {
       const num = document.createElement("span");
       num.className = "num";
-      num.textContent =
-        String(index).padStart(2,"0");
+      num.textContent = String(index).padStart(2, "0");
       button.appendChild(num);
     }
 
-    button.addEventListener(
-      "click",() => go(module.id)
-    );
+    button.addEventListener("click", () => go(m.id));
     nav.appendChild(button);
   });
 }
@@ -902,48 +952,47 @@ function go(id) {
   if (!module) return;
 
   current = id;
+
   el("sidebar").classList.remove("open");
   el("breadcrumb").textContent = module.name;
   el("pageTitle").textContent =
-    id === "dashboard"
-      ? "Portfolio Dashboard"
-      : module.name;
+    id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  const visible =
-    id === "dashboard" ? "dashboard" :
-    id === "profile" ? "profile" :
-    id === "market" ? "market" : "workspace";
+  ["dashboard", "profile", "market", "optimize", "workspace"].forEach(section => {
+    const visible =
+      id === "dashboard" ? "dashboard" :
+      id === "profile" ? "profile" :
+      id === "market" ? "market" :
+      id === "optimize" ? "optimize" : "workspace";
 
-  ["dashboard","profile","market","workspace"]
-    .forEach(section => {
-      el(section).classList.toggle(
-        "hidden",section !== visible
-      );
-    });
+    el(section).classList.toggle("hidden", section !== visible);
+  });
 
-  if (visible === "workspace") {
+  if (!["dashboard", "profile", "market", "optimize"].includes(id)) {
     el("moduleTitle").textContent = module.name;
     el("moduleDesc").textContent = module.desc;
     el("moduleMessage").textContent =
       module.name + " — Workspace Preview";
 
-    const body = el("moduleFeatures");
-    body.replaceChildren();
+    const tbody = el("moduleFeatures");
+    tbody.replaceChildren();
 
     (module.features || []).forEach(feature => {
       const row = document.createElement("tr");
       const name = document.createElement("td");
       const status = document.createElement("td");
+
       name.textContent = feature;
       status.textContent = "Planned";
-      row.append(name,status);
-      body.appendChild(row);
+
+      row.append(name, status);
+      tbody.appendChild(row);
     });
   }
 
   renderNav();
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }
 
 function toast(message) {
@@ -952,52 +1001,50 @@ function toast(message) {
   target.classList.add("show");
 
   clearTimeout(window.toastTimer);
+
   window.toastTimer = setTimeout(() => {
     target.classList.remove("show");
-  },3500);
+  }, 3500);
 }
 
-function feedback(message,success) {
+function feedback(message, success) {
   const target = el("apiFeedback");
   target.textContent = message;
   target.style.borderLeft =
-    "4px solid " +
-    (success ? "#16a6a0" : "#dc684e");
+    "4px solid " + (success ? "#16a6a0" : "#dc684e");
 }
 
 function apiUrl(path) {
-  const base = el("apiBase")
-    .value.trim().replace(/\/$/,"");
+  const base = el("apiBase").value.trim().replace(/\/$/, "");
 
   if (!/^https?:\/\/[^/]+/i.test(base)) {
     throw new Error("Enter a valid API URL.");
   }
+
   return base + path;
 }
 
 function getProfile() {
   return {
-    investorId:el("investorId").value,
-    investorName:el("investorName").value,
-    investment:el("investment").value,
-    contribution:el("contribution").value,
-    horizon:el("horizon").value,
-    risk:el("risk").value,
-    goal:el("goal").value
+    investorId: el("investorId").value,
+    investorName: el("investorName").value,
+    investment: el("investment").value,
+    contribution: el("contribution").value,
+    horizon: el("horizon").value,
+    risk: el("risk").value,
+    goal: el("goal").value
   };
 }
 
 function formToApi() {
   const p = getProfile();
+
   const initial = Number(p.investment);
   const annual = Number(p.contribution);
   const horizon = Number(p.horizon);
 
-  if (!p.investorId.trim() ||
-      !p.investorName.trim()) {
-    throw new Error(
-      "Investor ID and name are required."
-    );
+  if (!p.investorId.trim() || !p.investorName.trim()) {
+    throw new Error("Investor ID and name are required.");
   }
 
   if (
@@ -1013,20 +1060,19 @@ function formToApi() {
     horizon > 70
   ) {
     throw new Error(
-      "Enter valid investment amounts and " +
-      "a horizon of 1–70 years."
+      "Enter valid investment amounts and a horizon of 1–70 years."
     );
   }
 
   return {
-    investor_id:p.investorId.trim(),
-    investor_name:p.investorName.trim(),
-    initial_investment:initial,
-    annual_contribution:annual,
-    investment_horizon_years:horizon,
-    risk_tolerance:p.risk.toLowerCase(),
-    currency:"USD",
-    goals:[]
+    investor_id: p.investorId.trim(),
+    investor_name: p.investorName.trim(),
+    initial_investment: initial,
+    annual_contribution: annual,
+    investment_horizon_years: horizon,
+    risk_tolerance: p.risk.toLowerCase(),
+    currency: "USD",
+    goals: []
   };
 }
 
@@ -1037,10 +1083,13 @@ function apiErrorMessage(data) {
     return data.detail;
   }
 
+  if (data.detail && typeof data.detail === "object" && !Array.isArray(data.detail)) {
+    return data.detail.message || JSON.stringify(data.detail);
+  }
+
   if (Array.isArray(data.detail)) {
     return data.detail.map(error =>
-      (error.loc || []).join(".") +
-      ": " + error.msg
+      error.loc.join(".") + ": " + error.msg
     ).join(" | ");
   }
 
@@ -1049,10 +1098,9 @@ function apiErrorMessage(data) {
 
 async function checkApi() {
   try {
-    feedback("Checking backend connection...",true);
+    feedback("Checking backend connection...", true);
 
-    const response =
-      await fetch(apiUrl("/api/health"));
+    const response = await fetch(apiUrl("/api/health"));
 
     if (!response.ok) {
       throw new Error("HTTP " + response.status);
@@ -1061,19 +1109,19 @@ async function checkApi() {
     const data = await response.json();
 
     if (data.status !== "healthy") {
-      throw new Error(
-        "Unexpected health response."
-      );
+      throw new Error("Unexpected health response.");
     }
 
     feedback(
-      "Connected to FastAPI version " +
-      data.version,true
+      "Connected to FastAPI version " + data.version,
+      true
     );
+
     toast("Backend connection successful.");
   } catch (error) {
     feedback(
-      "Connection failed: " + error.message,
+      "Connection failed: " + error.message +
+      ". Confirm the backend is running and CORS is configured.",
       false
     );
   }
@@ -1084,14 +1132,18 @@ async function saveProfile() {
 
   try {
     const payload = formToApi();
+
     button.disabled = true;
-    feedback("Submitting investor profile...",true);
+    feedback("Submitting investor profile...", true);
 
     const response = await fetch(
-      apiUrl("/api/investor-profile"),{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
+      apiUrl("/api/investor-profile"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
       }
     );
 
@@ -1099,15 +1151,13 @@ async function saveProfile() {
 
     if (!response.ok) {
       throw new Error(
-        "HTTP " + response.status +
-        ": " + apiErrorMessage(data)
+        "HTTP " + response.status + ": " +
+        apiErrorMessage(data)
       );
     }
 
     if (data.status !== "created") {
-      throw new Error(
-        "Unexpected creation response."
-      );
+      throw new Error("Unexpected creation response.");
     }
 
     sessionStorage.setItem(
@@ -1115,22 +1165,18 @@ async function saveProfile() {
       JSON.stringify(getProfile())
     );
 
-    updateDashboard(
-      payload.initial_investment
-    );
+    updateDashboard(payload.initial_investment);
 
     feedback(
       "Profile " + payload.investor_id +
-      " created successfully. " +
+      " validated and created successfully. " +
       "Storage: temporary server memory.",
       true
     );
+
     toast("Investor profile submitted.");
   } catch (error) {
-    feedback(
-      "Submission failed: " + error.message,
-      false
-    );
+    feedback("Submission failed: " + error.message, false);
   } finally {
     button.disabled = false;
   }
@@ -1144,34 +1190,28 @@ async function loadProfile() {
       throw new Error("Enter an investor ID.");
     }
 
-    feedback("Retrieving investor profile...",true);
+    feedback("Retrieving investor profile...", true);
 
     const response = await fetch(
-      apiUrl(
-        "/api/investor-profile/" +
-        encodeURIComponent(id)
-      )
+      apiUrl("/api/investor-profile/" +
+        encodeURIComponent(id))
     );
 
     const data = await response.json();
 
     if (!response.ok) {
       throw new Error(
-        "HTTP " + response.status +
-        ": " + apiErrorMessage(data)
+        "HTTP " + response.status + ": " +
+        apiErrorMessage(data)
       );
     }
 
     const p = data.profile;
 
-    el("investorName").value =
-      p.investor_name;
-    el("investment").value =
-      p.initial_investment;
-    el("contribution").value =
-      p.annual_contribution;
-    el("horizon").value =
-      p.investment_horizon_years;
+    el("investorName").value = p.investor_name;
+    el("investment").value = p.initial_investment;
+    el("contribution").value = p.annual_contribution;
+    el("horizon").value = p.investment_horizon_years;
     el("risk").value =
       p.risk_tolerance.charAt(0).toUpperCase() +
       p.risk_tolerance.slice(1);
@@ -1179,76 +1219,64 @@ async function loadProfile() {
     updateDashboard(p.initial_investment);
 
     feedback(
-      "Retrieved investor " +
-      p.investor_id + " from backend.",
+      "Retrieved investor " + p.investor_id +
+      " from the backend.",
       true
     );
+
     toast("Investor profile retrieved.");
   } catch (error) {
-    feedback(
-      "Retrieval failed: " + error.message,
-      false
-    );
+    feedback("Retrieval failed: " + error.message, false);
   }
 }
 
 function updateDashboard(amount) {
   el("dashValue").textContent =
-    Number(amount).toLocaleString(
-      "en-US",{
-        style:"currency",
-        currency:"USD",
-        maximumFractionDigits:0
-      }
-    );
-}
-
-function downloadJson(data,filename) {
-  const blob = new Blob(
-    [JSON.stringify(data,null,2)],
-    {type:"application/json"}
-  );
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  },1000);
+    Number(amount).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0
+    });
 }
 
 function downloadDemo() {
   const data = {
-    mode:"UI_DEMO_WITH_SKILLS_1_AND_2_API",
+    mode: "UI_DEMO_WITH_SKILLS_1_AND_2_API",
     notice:
-      "Demo form values are not independently " +
-      "verified by this export. No portfolio " +
-      "optimization or recommendation is calculated.",
-    profile:getProfile(),
-    skills_integrated:0
+      "Form values are not independently verified by this export. " +
+      "No portfolio optimization or recommendation is calculated.",
+    profile: getProfile(),
+    skills_integrated: 0
   };
 
-  downloadJson(data,"ie591-demo-profile.json");
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "ie591-demo-profile.json";
+  link.click();
+
+  URL.revokeObjectURL(url);
   toast("Demo JSON exported.");
 }
 
 function renderWorkflow() {
   const steps = [
-    ["1","Investor Profile","profile"],
-    ["2","Market Data","market"],
-    ["3","Optimization","optimize"],
-    ["4","Risk & Simulation","risk"],
-    ["5","Decision Support","decision"]
+    ["1", "Investor Profile", "profile"],
+    ["2", "Market Data", "market"],
+    ["3", "Optimization", "optimize"],
+    ["4", "Risk & Simulation", "risk"],
+    ["5", "Decision Support", "decision"]
   ];
 
   const container = el("workflow");
-  container.replaceChildren();
 
-  steps.forEach(([number,title,id]) => {
+  steps.forEach(([number, title, id]) => {
     const button = document.createElement("button");
     button.className = "step";
 
@@ -1262,22 +1290,21 @@ function renderWorkflow() {
     const caption = document.createElement("small");
     caption.textContent = "Open workspace";
 
-    button.append(circle,label,caption);
-    button.addEventListener("click",() => go(id));
+    button.append(circle, label, caption);
+    button.addEventListener("click", () => go(id));
+
     container.appendChild(button);
   });
 }
 
 function restoreDemo() {
   try {
-    const saved = sessionStorage.getItem(
-      "ie591_demo_profile"
-    );
+    const saved = sessionStorage.getItem("ie591_demo_profile");
     if (!saved) return;
 
     const p = JSON.parse(saved);
 
-    for (const [key,value] of Object.entries(p)) {
+    for (const [key, value] of Object.entries(p)) {
       if (el(key)) el(key).value = value;
     }
 
@@ -1285,278 +1312,138 @@ function restoreDemo() {
       updateDashboard(p.investment);
     }
   } catch (error) {
-    console.warn(
-      "Unable to restore demo profile."
-    );
+    console.warn("Unable to restore demo profile.");
   }
 }
 
-// ===========================================
-// SKILL #2 — MARKET INTELLIGENCE
-// ===========================================
 
-function marketFeedback(message,ok=true) {
+// ==================================================
+// SKILL #2 — MARKET INTELLIGENCE
+// ==================================================
+
+let lastMarketAnalysis = null;
+
+function marketFeedback(message, ok = true) {
   const target = el("marketFeedback");
   target.textContent = message;
-  target.style.borderLeft =
-    "4px solid " +
-    (ok ? "#16a6a0" : "#dc684e");
+  target.style.borderLeft = "4px solid " + (ok ? "#16a6a0" : "#dc684e");
 }
 
 function syntheticMarketPayload() {
-  const analysisId =
-    el("marketAnalysisId").value.trim();
-
-  if (!analysisId) {
-    throw new Error("Enter an analysis ID.");
-  }
-
-  const three =
-    el("marketDataset").value === "three";
-
+  const analysisId = el("marketAnalysisId").value.trim();
+  if (!analysisId) throw new Error("Enter an analysis ID.");
+  const three = el("marketDataset").value === "three";
   const assets = [
-    {
-      ticker:"VTI",
-      asset_name:"Synthetic Equity",
-      asset_class:"equity",
-      currency:"USD"
-    },
-    {
-      ticker:"BND",
-      asset_name:"Synthetic Bonds",
-      asset_class:"fixed_income",
-      currency:"USD"
-    }
+    {ticker:"VTI", asset_name:"Synthetic Equity", asset_class:"equity", currency:"USD"},
+    {ticker:"BND", asset_name:"Synthetic Bonds", asset_class:"fixed_income", currency:"USD"}
   ];
-
-  if (three) {
-    assets.push({
-      ticker:"SGOV",
-      asset_name:"Synthetic Cash",
-      asset_class:"cash",
-      currency:"USD"
-    });
-  }
-
-  const dates = [
-    "2026-01-31",
-    "2026-02-28",
-    "2026-03-31",
-    "2026-04-30"
-  ];
-
+  if (three) assets.push({ticker:"SGOV", asset_name:"Synthetic Cash", asset_class:"cash", currency:"USD"});
+  const dates = ["2026-01-31","2026-02-28","2026-03-31","2026-04-30"];
   const prices = {
-    VTI:[100,102,101,104],
-    BND:[80,81,80.5,82],
-    SGOV:[100,100.2,100.5,100.65]
+    VTI: [100, 102, 101, 104],
+    BND: [80, 81, 80.5, 82],
+    SGOV: [100, 100.2, 100.5, 100.65]
   };
-
   const observations = [];
-
-  dates.forEach((date,index) => {
-    assets.forEach(asset => {
-      observations.push({
-        observation_date:date,
-        ticker:asset.ticker,
-        price:prices[asset.ticker][index]
-      });
-    });
-  });
-
+  dates.forEach((date, index) => assets.forEach(asset => {
+    observations.push({observation_date:date, ticker:asset.ticker, price:prices[asset.ticker][index]});
+  }));
   return {
     analysis_id:analysisId,
-    assets:assets,
-    observations:observations,
-    provenance:{
-      source_type:"synthetic",
-      source_name:"IE 591 Browser Validation Dataset",
-      dataset_id:three
-        ? "BROWSER-THREE-ASSET"
-        : "BROWSER-TWO-ASSET",
-      is_synthetic:true
-    },
-    config:{
-      frequency:"monthly",
-      price_basis:"adjusted_close",
-      return_method:"simple",
-      missing_data_policy:"common_dates",
-      annualization_periods:12,
-      minimum_common_observations:3
-    }
+    assets,
+    observations,
+    provenance:{source_type:"synthetic", source_name:"IE 591 Browser Validation Dataset", dataset_id:three ? "BROWSER-THREE-ASSET" : "BROWSER-TWO-ASSET", is_synthetic:true},
+    config:{frequency:"monthly", price_basis:"adjusted_close", return_method:"simple", missing_data_policy:"common_dates", annualization_periods:12, minimum_common_observations:3}
   };
 }
 
 async function checkMarketApi() {
   const button = el("marketCheckBtn");
   button.disabled = true;
-
   try {
-    marketFeedback(
-      "Checking Market Intelligence engine..."
-    );
-
-    const response = await fetch(
-      apiUrl("/api/market/status")
-    );
+    marketFeedback("Checking Market Intelligence engine...");
+    const response = await fetch(apiUrl("/api/market/status"));
     const data = await response.json();
-
-    if (
-      !response.ok ||
-      data.engine !== "available" ||
-      data.skill_id !== 2
-    ) {
-      throw new Error(
-        "Market engine returned unexpected status."
-      );
+    if (!response.ok || data.engine !== "available" || data.skill_id !== 2) {
+      throw new Error("Market engine did not return the expected status.");
     }
-
-    marketFeedback(
-      "Market engine available. Calculation version " +
-      data.calculation_version +
-      ". External data fetching disabled."
-    );
+    marketFeedback("Market engine available · Calculation version " + data.calculation_version + " · External data fetching disabled.");
     toast("Market Intelligence engine connected.");
   } catch (error) {
-    marketFeedback(
-      "Market engine check failed: " +
-      error.message,false
-    );
+    marketFeedback("Market engine check failed: " + error.message, false);
   } finally {
     button.disabled = false;
   }
 }
 
 function marketPercent(value) {
-  return typeof value === "number" &&
-    Number.isFinite(value)
-    ? (value * 100).toFixed(2) + "%"
-    : "—";
+  return typeof value === "number" && Number.isFinite(value) ? (value * 100).toFixed(2) + "%" : "—";
 }
 
-function renderMarketMatrix(containerId,matrix) {
+function renderMarketMatrix(containerId, matrix) {
   const container = el(containerId);
   container.replaceChildren();
-
-  if (
-    !matrix ||
-    !Array.isArray(matrix.tickers) ||
-    !Array.isArray(matrix.values)
-  ) {
-    container.textContent =
-      "No matrix available.";
+  if (!matrix || !Array.isArray(matrix.tickers) || !Array.isArray(matrix.values)) {
+    container.textContent = "No matrix available.";
     return;
   }
-
   const table = document.createElement("table");
   table.className = "table";
-
   const header = document.createElement("tr");
-
-  ["Asset",...matrix.tickers].forEach(label => {
-    const th = document.createElement("th");
-    th.textContent = label;
-    header.appendChild(th);
+  ["Asset", ...matrix.tickers].forEach(label => {
+    const th = document.createElement("th"); th.textContent = label; header.appendChild(th);
   });
   table.appendChild(header);
-
-  matrix.tickers.forEach((ticker,i) => {
+  matrix.tickers.forEach((ticker, i) => {
     const row = document.createElement("tr");
-    const label = document.createElement("th");
-    label.textContent = ticker;
-    row.appendChild(label);
-
-    (matrix.values[i] || []).forEach(value => {
+    const label = document.createElement("th"); label.textContent = ticker; row.appendChild(label);
+    matrix.values[i].forEach(value => {
       const cell = document.createElement("td");
-      cell.textContent =
-        typeof value === "number"
-          ? value.toFixed(4)
-          : "—";
+      cell.textContent = typeof value === "number" ? value.toFixed(4) : "—";
       row.appendChild(cell);
     });
-
     table.appendChild(row);
   });
-
   container.appendChild(table);
 }
 
 function renderMarketAnalysis(data) {
   el("marketResults").classList.remove("hidden");
-
-  el("marketStatusValue").textContent =
-    data.status.replaceAll("_"," ");
+  el("marketStatusValue").textContent = data.status.replaceAll("_", " ");
   el("marketStatusValue").style.fontSize = "19px";
-
-  el("marketQualityValue").textContent =
-    "Quality: " + data.quality.status;
-
-  el("marketAssetCount").textContent =
-    String(data.asset_statistics.length);
-
-  el("marketReady").textContent =
-    data.downstream_ready ? "Yes" : "No";
+  el("marketQualityValue").textContent = "Quality: " + data.quality.status;
+  el("marketAssetCount").textContent = String(data.asset_statistics.length);
+  el("marketReady").textContent = data.downstream_ready ? "Yes" : "No";
 
   const body = el("marketStatsBody");
   body.replaceChildren();
-
   data.asset_statistics.forEach(asset => {
     const row = document.createElement("tr");
-
-    [
-      asset.ticker,
-      marketPercent(asset.annualized_arithmetic_return),
-      marketPercent(asset.annualized_volatility),
-      marketPercent(asset.cumulative_return),
-      String(asset.observation_count)
-    ].forEach(value => {
-      const cell = document.createElement("td");
-      cell.textContent = value;
-      row.appendChild(cell);
+    [asset.ticker, marketPercent(asset.annualized_arithmetic_return), marketPercent(asset.annualized_volatility), marketPercent(asset.cumulative_return), String(asset.observation_count)].forEach(value => {
+      const cell = document.createElement("td"); cell.textContent = value; row.appendChild(cell);
     });
-
     body.appendChild(row);
   });
-
-  renderMarketMatrix(
-    "marketCorrelation",
-    data.correlation_matrix
-  );
-  renderMarketMatrix(
-    "marketCovariance",
-    data.covariance_matrix
-  );
-
+  renderMarketMatrix("marketCorrelation", data.correlation_matrix);
+  renderMarketMatrix("marketCovariance", data.covariance_matrix);
   const q = data.quality;
-
   el("marketQualityDetails").textContent =
     "Source: " + data.provenance.source_name +
     " · Dataset: " + data.provenance.dataset_id +
-    " · Synthetic: " +
-      String(data.provenance.is_synthetic) +
-    " · Observations: " +
-      q.source_observation_count +
-    " · Common price dates: " +
-      q.valid_common_price_dates +
-    " · Return periods: " +
-      q.valid_common_return_periods +
-    " · Excluded dates: " +
-      q.excluded_dates.length +
-    " · Calculation version: " +
-      data.calculation_version;
-
+    " · Synthetic: " + String(data.provenance.is_synthetic) +
+    " · Observations: " + q.source_observation_count +
+    " · Common price dates: " + q.valid_common_price_dates +
+    " · Return periods: " + q.valid_common_return_periods +
+    " · Excluded dates: " + q.excluded_dates.length +
+    " · Calculation version: " + data.calculation_version;
   const issues = el("marketIssues");
   issues.replaceChildren();
-
   if (!q.issues.length) {
-    issues.textContent =
-      "No data-quality issues reported.";
+    issues.textContent = "No data-quality issues reported.";
   } else {
     q.issues.forEach(issue => {
       const p = document.createElement("p");
-      p.textContent =
-        issue.severity.toUpperCase() +
-        " · " + issue.code +
-        ": " + issue.message;
+      p.textContent = issue.severity.toUpperCase() + " · " + issue.code + ": " + issue.message;
       issues.appendChild(p);
     });
   }
@@ -1566,95 +1453,267 @@ async function runMarketAnalysis() {
   const button = el("marketAnalyzeBtn");
   button.disabled = true;
   lastMarketAnalysis = null;
-
   el("marketExportBtn").disabled = true;
   el("marketResults").classList.add("hidden");
-
   try {
     const payload = syntheticMarketPayload();
-
-    marketFeedback(
-      "Running market analysis on hosted FastAPI..."
-    );
-
-    const response = await fetch(
-      apiUrl("/api/market/analyze"),{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(payload)
-      }
-    );
-
+    marketFeedback("Running market analysis on hosted FastAPI...");
+    const response = await fetch(apiUrl("/api/market/analyze"), {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)
+    });
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        "HTTP " + response.status +
-        ": " + apiErrorMessage(data)
-      );
-    }
-
-    if (
-      !data.quality ||
-      !Array.isArray(data.asset_statistics)
-    ) {
-      throw new Error(
-        "Unexpected market analysis response."
-      );
-    }
-
+    if (!response.ok) throw new Error("HTTP " + response.status + ": " + apiErrorMessage(data));
+    if (!data.quality || !Array.isArray(data.asset_statistics)) throw new Error("Unexpected market response.");
     lastMarketAnalysis = data;
     renderMarketAnalysis(data);
-
     el("marketExportBtn").disabled = false;
-
-    marketFeedback(
-      "Analysis " + data.analysis_id +
-      " returned " + data.status +
-      " · Quality " + data.quality.status +
-      " · Downstream ready: " +
-      String(data.downstream_ready) + ".",
-      data.status !== "rejected"
-    );
-
+    marketFeedback("Analysis " + data.analysis_id + " returned " + data.status + " · Quality " + data.quality.status + " · Downstream ready: " + String(data.downstream_ready) + ".", data.status !== "rejected");
     toast("Market analysis returned from FastAPI.");
   } catch (error) {
-    marketFeedback(
-      "Market analysis failed: " +
-      error.message,false
-    );
+    marketFeedback("Market analysis failed: " + error.message, false);
   } finally {
     button.disabled = false;
   }
 }
 
 function exportMarketAnalysis() {
-  if (!lastMarketAnalysis) {
-    marketFeedback(
-      "Run an analysis before exporting.",
-      false
-    );
-    return;
-  }
-
-  downloadJson(
-    lastMarketAnalysis,
-    "ie591-market-analysis.json"
-  );
-
+  if (!lastMarketAnalysis) { marketFeedback("Run an analysis before exporting.", false); return; }
+  const blob = new Blob([JSON.stringify(lastMarketAnalysis, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "ie591-market-analysis.json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast("Market analysis JSON exported.");
 }
 
+
 // ===========================================
-// APPLICATION INITIALIZATION
+// SKILL #3 — PORTFOLIO OPTIMIZATION
 // ===========================================
+let lastOptimization = null;
+let lastOptimizationFrontier = null;
+let lastOptimizationPayload = null;
+
+function optimizationFeedback(message, ok=true) {
+  const target = el("optimizationFeedback");
+  target.textContent = message;
+  target.style.borderLeft = "4px solid " + (ok ? "#16a6a0" : "#dc684e");
+}
+function invalidateOptimization() {
+  lastOptimization = null;
+  lastOptimizationFrontier = null;
+  lastOptimizationPayload = null;
+  el("optimizationExportBtn").disabled = true;
+  el("optimizationResults").classList.add("hidden");
+  el("optimizationFrontierResults").classList.add("hidden");
+  optimizationFeedback("Inputs changed. Run optimization or generate a new frontier.");
+}
+function optimizationNumber(id, min, max, optional=false) {
+  const raw = el(id).value.trim();
+  if (optional && raw === "") return null;
+  if (raw === "") throw new Error("A numeric field is empty: " + id);
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < min || value > max) {
+    throw new Error("Invalid value for " + id + " (allowed: " + min + " to " + max + ").");
+  }
+  return value;
+}
+function syntheticOptimizationPayload() {
+  const id = el("optimizationId").value.trim();
+  if (!id) throw new Error("Enter an optimization ID.");
+  const three = el("optimizationDataset").value === "three";
+  const minimum = optimizationNumber("optimizationMinEquity",0,100)/100;
+  const maximum = optimizationNumber("optimizationMaxEquity",0,100)/100;
+  if (minimum > maximum) throw new Error("Minimum equity allocation exceeds maximum.");
+  const riskFree = optimizationNumber("optimizationRiskFree",-10,50)/100;
+  const minReturn = optimizationNumber("optimizationMinReturn",-100,100,true);
+  const maxVol = optimizationNumber("optimizationMaxVolatility",0,100,true);
+  const points = optimizationNumber("optimizationFrontierPoints",2,200);
+  if (!Number.isInteger(points)) throw new Error("Frontier point count must be an integer.");
+  const assets = [
+    {ticker:"ASSET_A",asset_name:"Synthetic Equity",asset_class:"equity",expected_annual_return:0.12,minimum_weight:minimum,maximum_weight:maximum},
+    {ticker:"ASSET_B",asset_name:"Synthetic Bonds",asset_class:"fixed_income",expected_annual_return:0.06,minimum_weight:0,maximum_weight:1}
+  ];
+  if (three) assets.push({ticker:"ASSET_C",asset_name:"Synthetic Cash Equivalent",asset_class:"cash_equivalent",expected_annual_return:0.03,minimum_weight:0,maximum_weight:1});
+  const covariance = three
+    ? [[0.04,0,0],[0,0.01,0],[0,0,0.0025]]
+    : [[0.04,0],[0,0.01]];
+  const constraints = {fully_invested:true,allow_short_selling:false,allow_leverage:false};
+  if (minReturn !== null) constraints.minimum_expected_annual_return = minReturn/100;
+  if (maxVol !== null) constraints.maximum_annual_volatility = maxVol/100;
+  return {
+    optimization_id:id,
+    assets,
+    covariance_matrix:covariance,
+    constraints,
+    config:{objective:el("optimizationObjective").value,risk_free_annual_rate:riskFree,efficient_frontier_points:points,solver_tolerance:1e-9,maximum_iterations:2000},
+    provenance:{source_type:"synthetic",source_name:"IE 591 Browser Optimization Dataset",dataset_id:three?"BROWSER-OPT-THREE":"BROWSER-OPT-TWO",upstream_analysis_id:"MARKET-SYNTH-001",is_synthetic:true}
+  };
+}
+function optimizationError(data) {
+  if (data && data.detail && typeof data.detail === "object" && !Array.isArray(data.detail)) {
+    return data.detail.message || JSON.stringify(data.detail);
+  }
+  return apiErrorMessage(data);
+}
+async function optimizationPost(path,payload) {
+  const response = await fetch(apiUrl(path),{
+    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error("HTTP " + response.status + ": " + optimizationError(data));
+  return data;
+}
+async function checkOptimizationApi() {
+  const button = el("optimizationCheckBtn");
+  button.disabled = true;
+  try {
+    optimizationFeedback("Checking optimization engine...");
+    const response = await fetch(apiUrl("/api/optimization/status"));
+    const data = await response.json();
+    if (!response.ok || data.skill_id !== 3 || data.engine !== "available") throw new Error("Optimization engine unavailable.");
+    optimizationFeedback("Optimization engine available · Version " + data.calculation_version + " · Efficient frontier: " + String(data.efficient_frontier) + ".");
+    toast("Optimization engine connected.");
+  } catch(error) {
+    optimizationFeedback("Engine check failed: " + error.message,false);
+  } finally { button.disabled = false; }
+}
+function optimizationPercent(value) {
+  return typeof value === "number" && Number.isFinite(value) ? (value*100).toFixed(2)+"%" : "—";
+}
+function renderOptimization(data) {
+  const metrics = data.portfolio_metrics;
+  if (!metrics || !Array.isArray(data.allocations) || data.status !== "completed") throw new Error("Unexpected optimization response.");
+  el("optimizationResults").classList.remove("hidden");
+  el("optimizationReturn").textContent = optimizationPercent(metrics.expected_annual_return);
+  el("optimizationVolatility").textContent = optimizationPercent(metrics.annualized_volatility);
+  el("optimizationSharpe").textContent = typeof metrics.sharpe_ratio === "number" ? metrics.sharpe_ratio.toFixed(3) : "—";
+  const body = el("optimizationAllocations");
+  body.replaceChildren();
+  data.allocations.forEach(asset => {
+    const tr = document.createElement("tr");
+    [asset.ticker,optimizationPercent(asset.weight)].forEach(value => {
+      const td = document.createElement("td"); td.textContent = value; tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+  el("optimizationProvenance").textContent = "Objective: " + data.objective + " · Quality: " + data.quality.status + " · Downstream ready: " + String(data.downstream_ready) + " · Dataset: " + data.provenance.dataset_id + " · Calculation version: " + data.calculation_version;
+}
+async function runOptimization() {
+  const button = el("optimizationSolveBtn");
+  button.disabled = true;
+  invalidateOptimization();
+  try {
+    const payload = syntheticOptimizationPayload();
+    optimizationFeedback("Running constrained portfolio optimization...");
+    const data = await optimizationPost("/api/optimization/solve",payload);
+    renderOptimization(data);
+    lastOptimization = data;
+    lastOptimizationPayload = payload;
+    el("optimizationExportBtn").disabled = false;
+    optimizationFeedback("Optimization completed · " + data.objective + " · Quality: " + data.quality.status + ".");
+    toast("Portfolio optimization completed.");
+  } catch(error) { optimizationFeedback("Optimization failed: " + error.message,false); }
+  finally { button.disabled = false; }
+}
+function frontierSvg(tag,attributes,textValue) {
+  const node = document.createElementNS("http://www.w3.org/2000/svg",tag);
+  Object.entries(attributes).forEach(([key,value]) => node.setAttribute(key,String(value)));
+  if (textValue !== undefined) node.textContent = textValue;
+  return node;
+}
+function renderOptimizationFrontier(points) {
+  if (!Array.isArray(points) || !points.length) throw new Error("Unexpected efficient frontier response.");
+  const svg = el("optimizationFrontierChart");
+  svg.replaceChildren();
+  const entries = points.map(p => ({x:Number(p.annualized_volatility)*100,y:Number(p.expected_annual_return)*100}));
+  if (entries.some(p => !Number.isFinite(p.x) || !Number.isFinite(p.y))) throw new Error("Invalid frontier numeric results.");
+  const selected = lastOptimization && lastOptimization.portfolio_metrics
+    ? {x:lastOptimization.portfolio_metrics.annualized_volatility*100,y:lastOptimization.portfolio_metrics.expected_annual_return*100}
+    : null;
+  const all = selected ? [...entries,selected] : entries;
+  const xMin = Math.min(...all.map(p=>p.x)), xMax = Math.max(...all.map(p=>p.x));
+  const yMin = Math.min(...all.map(p=>p.y)), yMax = Math.max(...all.map(p=>p.y));
+  const xPad = Math.max((xMax-xMin)*0.1,0.5), yPad = Math.max((yMax-yMin)*0.1,0.5);
+  const left=xMin-xPad,right=xMax+xPad,bottom=yMin-yPad,top=yMax+yPad;
+  const px=x=>70+(x-left)/(right-left)*655;
+  const py=y=>290-(y-bottom)/(top-bottom)*245;
+  for(let i=0;i<=4;i++) {
+    const xx=70+i*655/4, yy=290-i*245/4;
+    svg.appendChild(frontierSvg("line",{x1:xx,y1:45,x2:xx,y2:290,stroke:"#edf1f7"}));
+    svg.appendChild(frontierSvg("line",{x1:70,y1:yy,x2:725,y2:yy,stroke:"#edf1f7"}));
+    svg.appendChild(frontierSvg("text",{x:xx,y:310,"text-anchor":"middle",fill:"#64748b","font-size":12},(left+i*(right-left)/4).toFixed(1)+"%"));
+    svg.appendChild(frontierSvg("text",{x:62,y:yy+4,"text-anchor":"end",fill:"#64748b","font-size":12},(bottom+i*(top-bottom)/4).toFixed(1)+"%"));
+  }
+  const polyline = entries.map(p=>px(p.x).toFixed(2)+","+py(p.y).toFixed(2)).join(" ");
+  svg.appendChild(frontierSvg("polyline",{points:polyline,fill:"none",stroke:"#3264e9","stroke-width":3,"stroke-linejoin":"round"}));
+  entries.forEach((p,i)=>{
+    const circle=frontierSvg("circle",{cx:px(p.x),cy:py(p.y),r:4,fill:"#3264e9"});
+    circle.appendChild(frontierSvg("title",{},"Point "+(i+1)+": volatility "+p.x.toFixed(2)+"%, return "+p.y.toFixed(2)+"%"));
+    svg.appendChild(circle);
+  });
+  if(selected) svg.appendChild(frontierSvg("circle",{cx:px(selected.x),cy:py(selected.y),r:7,fill:"#16a6a0",stroke:"#fff","stroke-width":2}));
+  svg.appendChild(frontierSvg("text",{x:400,y:336,"text-anchor":"middle",fill:"#52627b","font-size":13},"Annualized volatility (%)"));
+  svg.appendChild(frontierSvg("text",{x:18,y:170,transform:"rotate(-90 18 170)","text-anchor":"middle",fill:"#52627b","font-size":13},"Expected annual return (%)"));
+  const body = el("optimizationFrontierTable");
+  body.replaceChildren();
+  points.forEach(p=>{
+    const row=document.createElement("tr");
+    [p.target_annual_return,p.expected_annual_return,p.annualized_volatility].forEach(v=>{
+      const td=document.createElement("td");td.textContent=optimizationPercent(v);row.appendChild(td);
+    });
+    body.appendChild(row);
+  });
+  el("optimizationFrontierSummary").textContent = points.length + " calculated frontier point(s). All results are synthetic and use the current constraints.";
+  el("optimizationFrontierResults").classList.remove("hidden");
+}
+async function runOptimizationFrontier() {
+  const button=el("optimizationFrontierBtn");
+  button.disabled=true;
+  try {
+    const payload=syntheticOptimizationPayload();
+    // Keep a selected solution only if it was generated for identical inputs.
+    if(JSON.stringify(payload)!==JSON.stringify(lastOptimizationPayload)) {
+      lastOptimization=null;
+      el("optimizationResults").classList.add("hidden");
+    }
+    lastOptimizationFrontier=null;
+    el("optimizationFrontierResults").classList.add("hidden");
+    el("optimizationExportBtn").disabled = !lastOptimization;
+    optimizationFeedback("Calculating efficient frontier. This may take a few moments...");
+    const points=await optimizationPost("/api/optimization/frontier",payload);
+    renderOptimizationFrontier(points);
+    lastOptimizationFrontier=points;
+    lastOptimizationPayload=payload;
+    el("optimizationExportBtn").disabled=false;
+    optimizationFeedback("Efficient frontier generated: " + points.length + " point(s).");
+    toast("Efficient frontier generated.");
+  } catch(error) { optimizationFeedback("Frontier generation failed: " + error.message,false); }
+  finally { button.disabled=false; }
+}
+function exportOptimization() {
+  if (!lastOptimization && !lastOptimizationFrontier) {
+    optimizationFeedback("Run optimization or generate a frontier before exporting.",false);
+    return;
+  }
+  downloadJson({
+    project:"IE 591 Portfolio Intelligence",
+    skill:"Portfolio Optimization",
+    synthetic:true,
+    input:lastOptimizationPayload,
+    optimization:lastOptimization,
+    efficient_frontier:lastOptimizationFrontier
+  },"ie591-portfolio-optimization.json");
+  toast("Optimization JSON exported.");
+}
 
 renderNav();
 renderWorkflow();
 restoreDemo();
-
 </script>
 </body>
 </html>
