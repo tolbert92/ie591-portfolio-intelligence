@@ -1695,6 +1695,20 @@ async function runOptimizationFrontier() {
   } catch(error) { optimizationFeedback("Frontier generation failed: " + error.message,false); }
   finally { button.disabled=false; }
 }
+function downloadJson(data, filename) {
+  const content = JSON.stringify(data, null, 2);
+  const blob = new Blob([content], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Keep the object URL available until the browser has begun downloading.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function exportOptimization() {
   if (!lastOptimization && !lastOptimizationFrontier) {
     optimizationFeedback("Run optimization or generate a frontier before exporting.",false);
