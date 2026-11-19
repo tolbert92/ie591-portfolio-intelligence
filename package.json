@@ -1,0 +1,15 @@
+
+{
+  "name": "ie591-portfolio-intelligence",
+  "version": "0.3.5",
+  "private": true,
+  "description": "IE 591 Portfolio Intelligence — automated browser integration tests",
+  "scripts": {
+    "test:browser": "playwright test browser-tests",
+    "test:browser:headed": "playwright test browser-tests --headed",
+    "test:browser:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}
