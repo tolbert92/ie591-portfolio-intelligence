@@ -637,7 +637,7 @@ def solve_portfolio(
                 "weights": weights,
                 "metrics": metrics,
                 "value": value,
-                "iterations": int(result.nit),
+                "iterations": int(getattr(result, "nit", 0)),
                 "message": str(result.message),
                 "violation": violation,
             })
