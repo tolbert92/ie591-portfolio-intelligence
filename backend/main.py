@@ -221,6 +221,7 @@ def create_investor_profile(
 
     return {
         "status": "created",
+        "investor_id": investor_id,
         "message": "Investor profile created.",
         "profile": profile.model_dump(mode="json"),
         "storage": "temporary_memory",
