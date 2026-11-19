@@ -3,10 +3,11 @@
 IE 591 — Portfolio Intelligence
 University of Tennessee
 
-Stage 3 — Market Intelligence Integration
+Skill #1 — Investor Profile
+Skill #2 — Market Intelligence
+Skill #3 — Portfolio Optimization
 
-Skill #1: Investor Profile
-Skill #2: Market Intelligence
+Gate 4.3 — Backend API Integration
 
 Educational portfolio analytics application.
 """
@@ -19,13 +20,37 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from .models import InvestorProfile
+
 from .market_models import (
     MarketAnalysisRequest,
     MarketAnalysisResponse,
 )
+
 from .market_engine import (
     CALCULATION_VERSION,
     analyze_market,
+)
+
+from .optimization_models import (
+    CALCULATION_VERSION as OPTIMIZATION_VERSION,
+    OptimizationRequest,
+    OptimizationResponse,
+    OptimizationStatus,
+    OptimizationQuality,
+    OptimizationIssue,
+    IssueSeverity,
+    OptimizedAllocation,
+    EfficientFrontierPoint,
+)
+
+from .optimization_solver import (
+    OptimizationSolverError,
+    solve_portfolio,
+)
+
+from .optimization_frontier import (
+    EfficientFrontierError,
+    generate_efficient_frontier,
 )
 
 
@@ -39,7 +64,7 @@ app = FastAPI(
         "Educational portfolio intelligence "
         "platform integrating ten analytical skills."
     ),
-    version="0.3.1",
+    version="0.4.0",
 )
 
 app.add_middleware(
@@ -56,7 +81,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_PATH = BASE_DIR / "index.html"
@@ -80,7 +104,7 @@ SKILLS = [
     {
         "id": 3,
         "name": "Portfolio Optimization",
-        "status": "pending_integration",
+        "status": "integration_in_progress",
     },
     {
         "id": 4,
@@ -184,11 +208,11 @@ def get_skills() -> dict[str, Any]:
 @app.get("/api/status")
 def integration_status() -> dict[str, Any]:
     return {
-        "stage": 3,
-        "stage_name": "Skill #2 Integration",
+        "stage": 4,
+        "stage_name": "Skill #3 Backend API Integration",
         "frontend": "investor_profile_connected",
-        "backend": "market_intelligence_api",
-        "analytics": "market_engine_connected",
+        "backend": "portfolio_optimization_api",
+        "analytics": "optimization_engine_connected",
         "skills_integrated": 0,
         "professor_validation": "pending",
     }
@@ -254,7 +278,6 @@ def get_investor_profile(
 
 @app.get("/api/market/status")
 def market_engine_status() -> dict[str, Any]:
-
     return {
         "skill_id": 2,
         "skill_name": "Market Intelligence",
@@ -282,6 +305,156 @@ def analyze_market_endpoint(
 ) -> MarketAnalysisResponse:
 
     return analyze_market(request)
+
+
+# ==========================================
+# SKILL #3 — PORTFOLIO OPTIMIZATION
+# ==========================================
+
+@app.get("/api/optimization/status")
+def optimization_engine_status() -> dict[str, Any]:
+    """
+    Describe available optimization capabilities.
+    """
+    return {
+        "skill_id": 3,
+        "skill_name": "Portfolio Optimization",
+        "status": "integration_in_progress",
+        "engine": "available",
+        "calculation_version": OPTIMIZATION_VERSION,
+        "objectives": [
+            "minimum_variance",
+            "maximum_sharpe",
+        ],
+        "constraints": [
+            "fully_invested",
+            "long_only",
+            "asset_weight_bounds",
+            "minimum_expected_annual_return",
+            "maximum_annual_volatility",
+        ],
+        "efficient_frontier": True,
+        "data_sources": [
+            "synthetic",
+            "uploaded",
+            "provider",
+        ],
+        "external_data_fetching": False,
+        "endpoints": {
+            "solve": "/api/optimization/solve",
+            "frontier": "/api/optimization/frontier",
+        },
+    }
+
+
+def _optimization_quality() -> OptimizationQuality:
+    """
+    Construct a passing quality report.
+
+    Called only after the numerical solver has
+    successfully validated its final solution.
+    """
+    return OptimizationQuality(
+        status="pass",
+        constraints_satisfied=True,
+        weights_sum_to_one=True,
+        covariance_matrix_valid=True,
+        issues=[],
+    )
+
+
+@app.post(
+    "/api/optimization/solve",
+    response_model=OptimizationResponse,
+)
+def optimize_portfolio_endpoint(
+    request: OptimizationRequest,
+) -> OptimizationResponse:
+    """
+    Execute constrained portfolio optimization.
+
+    Pydantic validates the request structure.
+
+    The solver validates covariance properties,
+    feasibility, allocation bounds, and numerical
+    convergence.
+
+    Infeasible optimization requests return
+    HTTP 422 with a descriptive error.
+    """
+    try:
+        result = solve_portfolio(request)
+
+    except OptimizationSolverError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "OPTIMIZATION_FAILED",
+                "message": str(exc),
+            },
+        ) from exc
+
+    allocations = [
+        OptimizedAllocation(
+            ticker=asset.ticker,
+            weight=float(weight),
+        )
+        for asset, weight in zip(
+            request.assets,
+            result.weights,
+        )
+    ]
+
+    return OptimizationResponse(
+        optimization_id=request.optimization_id,
+        status=OptimizationStatus.COMPLETED,
+        objective=result.objective,
+        provenance=request.provenance,
+        allocations=allocations,
+        portfolio_metrics=result.metrics,
+        efficient_frontier=[],
+        quality=_optimization_quality(),
+        calculation_version=OPTIMIZATION_VERSION,
+        downstream_ready=True,
+    )
+
+
+@app.post(
+    "/api/optimization/frontier",
+    response_model=list[EfficientFrontierPoint],
+)
+def generate_frontier_endpoint(
+    request: OptimizationRequest,
+) -> list[EfficientFrontierPoint]:
+    """
+    Generate the efficient frontier using the
+    configured efficient_frontier_points value.
+
+    Each point includes:
+    - Target annual return
+    - Calculated annual return
+    - Annualized volatility
+    - Asset allocations
+
+    Existing allocation and risk constraints
+    are preserved by the frontier engine.
+
+    Unreachable targets return HTTP 422.
+    """
+    try:
+        return generate_efficient_frontier(request)
+
+    except (
+        EfficientFrontierError,
+        OptimizationSolverError,
+    ) as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "FRONTIER_GENERATION_FAILED",
+                "message": str(exc),
+            },
+        ) from exc
 
 
 # ==========================================
