@@ -1,215 +1,218 @@
 
 """
-IE 591 — AI Portfolio Optimization
-Unified Application Backend
+IE 591 — Portfolio Intelligence
+University of Tennessee
 
-Stage 2: Skill #1 — Investor Profile Integration
-Version: 0.2.0
+FastAPI application
+Stage 3 — Skill #2 Market Intelligence Integration
 
-Features:
-- FastAPI application
-- Health and status endpoints
-- Ten-skill registry
-- Investor profile validation
-- Investor profile creation and retrieval
-- Temporary in-memory profile storage
-- HTML frontend hosting at /app
+Skill #1: Investor Profile
+Skill #2: Market Intelligence
 
-Educational development application.
-Use synthetic investor data only.
+Educational application using synthetic datasets.
 """
 
 from pathlib import Path
+from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from backend.models import InvestorProfile
+from .models import InvestorProfile
+from .market_models import (
+    MarketAnalysisRequest,
+    MarketAnalysisResponse,
+)
+from .market_engine import analyze_market
 
 
-# ==================================================
+# ------------------------------------------
 # APPLICATION CONFIGURATION
-# ==================================================
+# ------------------------------------------
 
 app = FastAPI(
     title="IE 591 Portfolio Intelligence API",
     description=(
-        "Unified backend for the ten-skill AI Portfolio "
-        "Optimization application."
+        "Educational portfolio intelligence platform "
+        "integrating ten analytical skills."
     ),
-    version="0.2.0",
+    version="0.3.0",
 )
-
-
-# ==================================================
-# CORS CONFIGURATION
-# ==================================================
-
-# Development origins only.
-# The deployed /app frontend uses the same origin
-# as the API once its URL is updated.
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
     ],
-    allow_credentials=False,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
-# ==================================================
+# ------------------------------------------
+# APPLICATION PATHS
+# ------------------------------------------
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_PATH = BASE_DIR / "index.html"
+
+
+# ------------------------------------------
 # SKILL REGISTRY
-# ==================================================
+# ------------------------------------------
 
 SKILLS = [
-    (1, "Investor Profile"),
-    (2, "Market Intelligence"),
-    (3, "Portfolio Optimization"),
-    (4, "Risk Assessment"),
-    (5, "Portfolio Visualization"),
-    (6, "3D Portfolio Visualization"),
-    (7, "Forward Testing"),
-    (8, "Monte Carlo Simulation"),
-    (9, "Strategy Comparison"),
-    (10, "Decision Support"),
+    {
+        "id": 1,
+        "name": "Investor Profile",
+        "status": "integration_in_progress",
+    },
+    {
+        "id": 2,
+        "name": "Market Intelligence",
+        "status": "integration_in_progress",
+    },
+    {
+        "id": 3,
+        "name": "Portfolio Optimization",
+        "status": "pending_integration",
+    },
+    {
+        "id": 4,
+        "name": "Risk Assessment",
+        "status": "pending_integration",
+    },
+    {
+        "id": 5,
+        "name": "Portfolio Visualization",
+        "status": "pending_integration",
+    },
+    {
+        "id": 6,
+        "name": "3D Portfolio Visualization",
+        "status": "pending_integration",
+    },
+    {
+        "id": 7,
+        "name": "Forward Testing",
+        "status": "pending_integration",
+    },
+    {
+        "id": 8,
+        "name": "Monte Carlo Simulation",
+        "status": "pending_integration",
+    },
+    {
+        "id": 9,
+        "name": "Strategy Comparison",
+        "status": "pending_integration",
+    },
+    {
+        "id": 10,
+        "name": "Decision Support",
+        "status": "pending_integration",
+    },
 ]
 
 
-# ==================================================
-# TEMPORARY INVESTOR PROFILE STORAGE
-# ==================================================
+# ------------------------------------------
+# TEMPORARY STORAGE
+# ------------------------------------------
 
-# Development-only storage.
+# Investor profiles are stored in memory only.
+# Data will be lost when the server restarts.
 #
-# Profiles are stored in the current Python process.
-# Data disappears when the process restarts.
-# Multiple server workers do not share this dictionary.
-#
-# Do not store actual personal or financial information.
+# This remains unchanged from Skill #1.
 
 investor_profiles: dict[str, InvestorProfile] = {}
 
 
-# ==================================================
-# APPLICATION ROOT
-# ==================================================
+# ------------------------------------------
+# ROOT ENDPOINT
+# ------------------------------------------
 
 @app.get("/")
-def root():
-    """
-    Return application metadata.
-
-    Preserved for compatibility with Stage 1 and
-    Stage 2 automated tests.
-    """
-
+def root() -> dict[str, Any]:
     return {
         "application": "IE 591 Portfolio Intelligence",
-        "version": "0.2.0",
-        "status": "development",
-        "message": "Unified portfolio API foundation",
+        "service": "portfolio-intelligence-api",
+        "version": app.version,
+        "status": "operational",
         "skills_total": 10,
         "skills_integrated": 0,
+        "frontend_url": "/app",
+        "documentation_url": "/docs",
     }
 
 
-# ==================================================
-# HEALTH CHECK
-# ==================================================
+# ------------------------------------------
+# HEALTH ENDPOINT
+# ------------------------------------------
 
 @app.get("/api/health")
-def health_check():
-    """
-    Confirm that the FastAPI backend is responding.
-    """
-
+def health() -> dict[str, str]:
     return {
         "status": "healthy",
         "service": "portfolio-intelligence-api",
-        "version": "0.2.0",
+        "version": app.version,
     }
 
 
-# ==================================================
+# ------------------------------------------
 # SKILL REGISTRY ENDPOINT
-# ==================================================
+# ------------------------------------------
 
 @app.get("/api/skills")
-def list_skills():
-    """
-    Return the status of all ten planned skills.
-
-    Skill #1 is currently being integrated.
-    Skills #2 through #10 remain pending.
-    """
-
+def get_skills() -> dict[str, Any]:
     return {
         "total": len(SKILLS),
-        "integrated": 0,
-        "skills": [
-            {
-                "id": number,
-                "name": name,
-                "status": (
-                    "integration_in_progress"
-                    if number == 1
-                    else "pending_integration"
-                ),
-            }
-            for number, name in SKILLS
-        ],
+        "integrated": sum(
+            skill["status"] == "integrated"
+            for skill in SKILLS
+        ),
+        "skills": SKILLS,
     }
 
 
-# ==================================================
-# APPLICATION STATUS
-# ==================================================
+# ------------------------------------------
+# INTEGRATION STATUS
+# ------------------------------------------
 
 @app.get("/api/status")
-def application_status():
-    """
-    Report the current development stage.
-    """
-
+def integration_status() -> dict[str, Any]:
     return {
-        "stage": 2,
-        "stage_name": "Skill #1 Integration",
-        "frontend": "prototype_approved",
-        "backend": "investor_profile_api",
-        "analytics": "not_connected",
+        "stage": 3,
+        "stage_name": "Skill #2 Integration",
+        "frontend": "investor_profile_connected",
+        "backend": "market_intelligence_api",
+        "analytics": "market_engine_connected",
         "skills_integrated": 0,
         "professor_validation": "pending",
     }
 
 
-# ==================================================
-# SKILL #1 — CREATE INVESTOR PROFILE
-# ==================================================
+# ==========================================
+# SKILL #1 — INVESTOR PROFILE
+# ==========================================
 
 @app.post(
     "/api/investor-profile",
-    status_code=201,
+    status_code=status.HTTP_201_CREATED,
 )
-def create_investor_profile(profile: InvestorProfile):
-    """
-    Validate and temporarily store an investor profile.
+def create_investor_profile(
+    profile: InvestorProfile,
+) -> dict[str, Any]:
 
-    Pydantic validates incoming data automatically.
+    investor_id = profile.investor_id
 
-    Returns:
-        201: Profile created
-        409: Duplicate investor ID
-        422: Invalid input data
-    """
-
-    if profile.investor_id in investor_profiles:
+    if investor_id in investor_profiles:
         raise HTTPException(
             status_code=409,
             detail=(
@@ -218,32 +221,21 @@ def create_investor_profile(profile: InvestorProfile):
             ),
         )
 
-    investor_profiles[profile.investor_id] = profile
+    investor_profiles[investor_id] = profile
 
     return {
-        "status": "created",
-        "message": (
-            "Investor profile validated and stored."
-        ),
-        "investor_id": profile.investor_id,
+        "message": "Investor profile created.",
         "profile": profile.model_dump(mode="json"),
         "storage": "temporary_memory",
     }
 
 
-# ==================================================
-# SKILL #1 — RETRIEVE INVESTOR PROFILE
-# ==================================================
-
-@app.get("/api/investor-profile/{investor_id}")
-def get_investor_profile(investor_id: str):
-    """
-    Retrieve a previously submitted investor profile.
-
-    Returns:
-        200: Profile found
-        404: Profile not found
-    """
+@app.get(
+    "/api/investor-profile/{investor_id}",
+)
+def get_investor_profile(
+    investor_id: str,
+) -> dict[str, Any]:
 
     profile = investor_profiles.get(investor_id)
 
@@ -254,42 +246,88 @@ def get_investor_profile(investor_id: str):
         )
 
     return {
-        "status": "found",
         "profile": profile.model_dump(mode="json"),
         "storage": "temporary_memory",
     }
 
 
-# ==================================================
-# STAGE 2 — HTML FRONTEND HOSTING
-# ==================================================
+# ==========================================
+# SKILL #2 — MARKET INTELLIGENCE
+# ==========================================
 
-# Resolve the repository root regardless of the
-# directory from which the server is launched.
+@app.get("/api/market/status")
+def market_engine_status() -> dict[str, Any]:
+    """
+    Report Skill #2 engine availability.
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+    Engine availability does not mean that
+    browser acceptance testing is complete.
+    """
 
-FRONTEND_FILE = BASE_DIR / "index.html"
+    return {
+        "skill_id": 2,
+        "skill_name": "Market Intelligence",
+        "status": "integration_in_progress",
+        "engine": "available",
+        "calculation_version": "1.0.0",
+        "input_type": "historical_price_observations",
+        "data_sources": [
+            "synthetic",
+            "uploaded",
+            "provider",
+        ],
+        "external_data_fetching": False,
+        "api_endpoint": "/api/market/analyze",
+        "method": "POST",
+    }
 
 
-@app.get("/app", include_in_schema=False)
+@app.post(
+    "/api/market/analyze",
+    response_model=MarketAnalysisResponse,
+)
+def analyze_market_endpoint(
+    request: MarketAnalysisRequest,
+) -> MarketAnalysisResponse:
+    """
+    Analyze supplied historical market prices.
+
+    Processing:
+      1. Validate request with Pydantic.
+      2. Align historical observations.
+      3. Calculate returns and volatility.
+      4. Calculate covariance and correlation.
+      5. Return quality findings and statistics.
+
+    Invalid request structure returns HTTP 422.
+
+    Analytically unsuitable but structurally
+    valid datasets return a structured result
+    with status='rejected'.
+
+    No market prices are fetched externally.
+    """
+
+    return analyze_market(request)
+
+
+# ==========================================
+# FRONTEND HOSTING
+# ==========================================
+
+@app.get(
+    "/app",
+    include_in_schema=False,
+)
 def serve_frontend():
-    """
-    Serve the Portfolio Intelligence HTML interface.
 
-    Example:
-        https://your-render-service.onrender.com/app
-
-    The / endpoint remains JSON for test compatibility.
-    """
-
-    if not FRONTEND_FILE.is_file():
+    if not FRONTEND_PATH.is_file():
         raise HTTPException(
             status_code=404,
-            detail="Frontend application not found.",
+            detail="Frontend index.html not found.",
         )
 
     return FileResponse(
-        FRONTEND_FILE,
+        FRONTEND_PATH,
         media_type="text/html",
     )
