@@ -118,10 +118,16 @@ def test_skills_endpoint():
         "status": "integration_in_progress",
     }
 
-    assert all(
-        skill["status"] == "pending_integration"
-        for skill in data["skills"][2:]
-    )
+assert data["skills"][2] == {
+    "id": 3,
+    "name": "Portfolio Optimization",
+    "status": "integration_in_progress",
+}
+
+assert all(
+    skill["status"] == "pending_integration"
+    for skill in data["skills"][3:]
+)
 
 
 def test_application_status():
@@ -131,7 +137,7 @@ def test_application_status():
 
     data = response.json()
 
-    assert data["stage"] == 3
+    assert data["stage"] == 4
     assert data["stage_name"] == (
         "Skill #2 Integration"
     )
