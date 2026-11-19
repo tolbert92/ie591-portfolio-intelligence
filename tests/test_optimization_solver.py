@@ -111,7 +111,7 @@ def request_payload():
 
 
 @pytest.fixture
-def request(request_payload):
+def optimization_request(request_payload):
     return OptimizationRequest.model_validate(
         request_payload
     )
@@ -127,8 +127,8 @@ def build_request(payload):
 # Minimum-variance optimization
 # --------------------------------------------------
 
-def test_minimum_variance_solver_succeeds(request):
-    result = solve_portfolio(request)
+def test_minimum_variance_solver_succeeds(optimization_request):
+    result = solve_portfolio(optimization_request)
 
     assert result.success is True
     assert result.objective == (
