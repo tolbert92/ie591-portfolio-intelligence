@@ -92,7 +92,7 @@ def test_health_endpoint():
     assert data["service"] == (
         "portfolio-intelligence-api"
     )
-    assert data["version"] == "0.3.1"
+    assert data["version"] == "0.4.0"
 
 
 def test_skills_endpoint():
