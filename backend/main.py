@@ -3,13 +3,12 @@
 IE 591 — Portfolio Intelligence
 University of Tennessee
 
-FastAPI application
-Stage 3 — Skill #2 Market Intelligence Integration
+Stage 3 — Market Intelligence Integration
 
 Skill #1: Investor Profile
 Skill #2: Market Intelligence
 
-Educational application using synthetic datasets.
+Educational portfolio analytics application.
 """
 
 from pathlib import Path
@@ -24,20 +23,23 @@ from .market_models import (
     MarketAnalysisRequest,
     MarketAnalysisResponse,
 )
-from .market_engine import analyze_market
+from .market_engine import (
+    CALCULATION_VERSION,
+    analyze_market,
+)
 
 
-# ------------------------------------------
+# ==========================================
 # APPLICATION CONFIGURATION
-# ------------------------------------------
+# ==========================================
 
 app = FastAPI(
     title="IE 591 Portfolio Intelligence API",
     description=(
-        "Educational portfolio intelligence platform "
-        "integrating ten analytical skills."
+        "Educational portfolio intelligence "
+        "platform integrating ten analytical skills."
     ),
-    version="0.3.0",
+    version="0.3.1",
 )
 
 app.add_middleware(
@@ -56,17 +58,13 @@ app.add_middleware(
 )
 
 
-# ------------------------------------------
-# APPLICATION PATHS
-# ------------------------------------------
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_PATH = BASE_DIR / "index.html"
 
 
-# ------------------------------------------
+# ==========================================
 # SKILL REGISTRY
-# ------------------------------------------
+# ==========================================
 
 SKILLS = [
     {
@@ -122,21 +120,19 @@ SKILLS = [
 ]
 
 
-# ------------------------------------------
-# TEMPORARY STORAGE
-# ------------------------------------------
+# ==========================================
+# TEMPORARY INVESTOR PROFILE STORAGE
+# ==========================================
 
-# Investor profiles are stored in memory only.
-# Data will be lost when the server restarts.
-#
-# This remains unchanged from Skill #1.
+# Educational prototype only.
+# Profiles are not persistent across restarts.
 
 investor_profiles: dict[str, InvestorProfile] = {}
 
 
-# ------------------------------------------
-# ROOT ENDPOINT
-# ------------------------------------------
+# ==========================================
+# ROOT
+# ==========================================
 
 @app.get("/")
 def root() -> dict[str, Any]:
@@ -145,16 +141,16 @@ def root() -> dict[str, Any]:
         "service": "portfolio-intelligence-api",
         "version": app.version,
         "status": "operational",
-        "skills_total": 10,
+        "skills_total": len(SKILLS),
         "skills_integrated": 0,
         "frontend_url": "/app",
         "documentation_url": "/docs",
     }
 
 
-# ------------------------------------------
-# HEALTH ENDPOINT
-# ------------------------------------------
+# ==========================================
+# HEALTH
+# ==========================================
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
@@ -165,9 +161,9 @@ def health() -> dict[str, str]:
     }
 
 
-# ------------------------------------------
-# SKILL REGISTRY ENDPOINT
-# ------------------------------------------
+# ==========================================
+# SKILL REGISTRY
+# ==========================================
 
 @app.get("/api/skills")
 def get_skills() -> dict[str, Any]:
@@ -181,9 +177,9 @@ def get_skills() -> dict[str, Any]:
     }
 
 
-# ------------------------------------------
-# INTEGRATION STATUS
-# ------------------------------------------
+# ==========================================
+# APPLICATION STATUS
+# ==========================================
 
 @app.get("/api/status")
 def integration_status() -> dict[str, Any]:
@@ -224,15 +220,14 @@ def create_investor_profile(
     investor_profiles[investor_id] = profile
 
     return {
+        "status": "created",
         "message": "Investor profile created.",
         "profile": profile.model_dump(mode="json"),
         "storage": "temporary_memory",
     }
 
 
-@app.get(
-    "/api/investor-profile/{investor_id}",
-)
+@app.get("/api/investor-profile/{investor_id}")
 def get_investor_profile(
     investor_id: str,
 ) -> dict[str, Any]:
@@ -246,6 +241,7 @@ def get_investor_profile(
         )
 
     return {
+        "status": "found",
         "profile": profile.model_dump(mode="json"),
         "storage": "temporary_memory",
     }
@@ -257,19 +253,13 @@ def get_investor_profile(
 
 @app.get("/api/market/status")
 def market_engine_status() -> dict[str, Any]:
-    """
-    Report Skill #2 engine availability.
-
-    Engine availability does not mean that
-    browser acceptance testing is complete.
-    """
 
     return {
         "skill_id": 2,
         "skill_name": "Market Intelligence",
         "status": "integration_in_progress",
         "engine": "available",
-        "calculation_version": "1.0.0",
+        "calculation_version": CALCULATION_VERSION,
         "input_type": "historical_price_observations",
         "data_sources": [
             "synthetic",
@@ -289,24 +279,6 @@ def market_engine_status() -> dict[str, Any]:
 def analyze_market_endpoint(
     request: MarketAnalysisRequest,
 ) -> MarketAnalysisResponse:
-    """
-    Analyze supplied historical market prices.
-
-    Processing:
-      1. Validate request with Pydantic.
-      2. Align historical observations.
-      3. Calculate returns and volatility.
-      4. Calculate covariance and correlation.
-      5. Return quality findings and statistics.
-
-    Invalid request structure returns HTTP 422.
-
-    Analytically unsuitable but structurally
-    valid datasets return a structured result
-    with status='rejected'.
-
-    No market prices are fetched externally.
-    """
 
     return analyze_market(request)
 
