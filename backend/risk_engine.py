@@ -94,3 +94,4 @@ def parametric_tail_risk(
 ) -> tuple[float, float]:
     """Normal-distribution VaR and CVaR for positive-loss convention."""
     if not (0 < confidence_level < 1):
+        raise ValueError("Confidence level must be strictly between zero and one")
