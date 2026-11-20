@@ -420,7 +420,7 @@ body {
 @media(max-width:1100px) {.risk-results .cards {grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:760px) {.risk-results .cards {grid-template-columns:1fr;}}
 
-/* Skill #5 — Portfolio Visualization workspace (Stage 5.4.1) */
+/* Skill #5 — Portfolio Visualization workspace (Stages 5.4.1–5.4.2) */
 .viz-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
 .viz-tabs button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:10px 13px;border-radius:9px;cursor:pointer;font:inherit}
 .viz-tabs button[aria-selected="true"]{background:var(--accent);color:white;border-color:var(--accent)}
@@ -431,7 +431,12 @@ body {
 .viz-legend{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0;font-size:12px;color:var(--muted)}
 .viz-legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:5px;background:var(--accent);border-radius:3px}
 .viz-legend span:nth-child(2)::before{background:var(--teal)}
-@media(max-width:760px){.viz-grid{grid-template-columns:1fr}}
+.viz-chart-frame{position:relative;width:100%;max-width:900px;min-height:300px;margin:18px 0}
+.viz-chart-frame canvas{display:block;width:100%;height:320px}
+.viz-chart-caption{font-size:12px;color:var(--muted);margin:6px 0 12px}
+.viz-chart-frame:focus-within{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:760px){.viz-grid{grid-template-columns:1fr}.viz-chart-frame{min-height:260px}}
+
 </style>
 </head>
 
@@ -838,7 +843,7 @@ body {
     </div>
   </div>
   <div class="panel viz-pane" id="vizPane" role="tabpanel" aria-live="polite"></div>
-  <div class="note">Educational analysis only. Data is synthetic when identified as synthetic by the upstream engine. Risk contributions may be negative and should not be interpreted as allocation weights. Stage 5.4.1 renders in-session results; API-driven dataset imports and advanced interactions follow in later stages.</div>
+  <div class="note">Educational analysis only. Data is synthetic when identified as synthetic by the upstream engine. Risk contributions may be negative and should not be interpreted as allocation weights. Stage 5.4.2 enhances available charts with Chart.js and Plotly.js when their libraries load; accessible SVG and tables remain available offline. API-driven imports and advanced interactions follow in later stages.</div>
 </section>
 
 <!-- OTHER SKILLS -->
@@ -2044,6 +2049,7 @@ function renderVisualization() {
     ["Value at Risk",risk?.value_at_risk?vizPercent(risk.value_at_risk.value):"Unavailable"]
   ];
   values.forEach(([label,value])=>{const card=vizNode("div",undefined,"viz-metric");card.append(vizNode("span",label),vizNode("strong",value));metrics.appendChild(card);});
+  vizDisposeCharts();
   const pane=el("vizPane");pane.replaceChildren();
   const titles={overview:"Executive Overview",allocation:"Asset Allocation",frontier:"Efficient Frontier",attribution:"Asset Risk Attribution",stress:"Hypothetical Stress Scenarios"};
   pane.appendChild(vizNode("h3",titles[visualizationTab]));
@@ -2058,22 +2064,22 @@ function renderVisualization() {
     const allocations=opt?.allocations || snapshot.riskRequest?.portfolio?.assets;
     if(!allocations?.length){vizEmpty(pane,"No allocation data available. Run Skill #3 or #4 first.");return;}
     vizTable(pane,["Asset","Weight"],allocations.map(a=>[a.ticker,vizPercent(a.weight)]));
-    vizBars(pane,allocations.map(a=>({label:a.ticker,value:a.weight})),false);
+    vizEnhancedBars(pane,allocations.map(a=>({label:a.ticker,value:a.weight})),false,"allocation");
   } else if(visualizationTab==="frontier") {
     const frontier=Array.isArray(snapshot.frontier)?snapshot.frontier:Array.isArray(snapshot.frontier?.points)?snapshot.frontier.points:[];
     if(!frontier.length){vizEmpty(pane,"No efficient frontier points available. Generate an efficient frontier in Skill #3.");return;}
     vizTable(pane,["Annualized volatility","Expected annual return"],frontier.map(p=>[vizPercent(p.annualized_volatility),vizPercent(p.expected_annual_return)]));
-    vizScatter(pane,frontier);
+    vizEnhancedFrontier(pane,frontier);
   } else if(visualizationTab==="attribution") {
     const rows=risk?.asset_risk_contributions||[];
     if(!rows.length){vizEmpty(pane,"Risk attribution is unavailable. Run Skill #4 Risk Assessment.");return;}
     vizTable(pane,["Asset","Allocation","Contribution to total risk"],rows.map(a=>[a.ticker,vizPercent(a.weight),vizPercent(a.percent_total_risk)]));
-    vizBars(pane,rows.map(a=>({label:a.ticker,value:a.percent_total_risk})),true);
+    vizEnhancedBars(pane,rows.map(a=>({label:a.ticker,value:a.percent_total_risk})),true,"attribution");
   } else {
     const rows=risk?.stress_results||[];
     if(!rows.length){vizEmpty(pane,"No hypothetical stress scenarios available. Run Skill #4.");return;}
     vizTable(pane,["Scenario ID","Portfolio shock","Nature"],rows.map(a=>[a.scenario_id,vizPercent(a.portfolio_shock_return),a.hypothetical?"Hypothetical":"Unspecified"]));
-    vizBars(pane,rows.map(a=>({label:a.scenario_id,value:a.portfolio_shock_return})),true);
+    vizEnhancedBars(pane,rows.map(a=>({label:a.scenario_id,value:a.portfolio_shock_return})),true,"stress");
   }
 }
 function vizBars(parent, rows, signed) {
@@ -2107,6 +2113,93 @@ function vizScatter(parent, rows) {
   finite.forEach(p=>{const dot=document.createElementNS(svg.namespaceURI,"circle");dot.setAttribute("cx",String(x(p.annualized_volatility)));dot.setAttribute("cy",String(y(p.expected_annual_return)));dot.setAttribute("r","4");dot.setAttribute("fill","#16a6a0");svg.appendChild(dot);});
   const axis=document.createElementNS(svg.namespaceURI,"text");axis.setAttribute("x","250");axis.setAttribute("y","290");axis.setAttribute("fill","currentColor");axis.textContent="Annualized volatility (risk) →";svg.appendChild(axis);
   parent.appendChild(svg);
+}
+
+// Skill #5 Stage 5.4.2 — optional Chart.js / Plotly.js enhancement.
+// All visualizations retain the Stage 5.4.1 SVG and table fallbacks.
+const vizLibraries = {chart:{state:"idle",url:"https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"},plotly:{state:"idle",url:"https://cdn.plot.ly/plotly-2.35.3.min.js"}};
+let vizActiveChart = null;
+let vizPlotlyNode = null;
+let vizRenderGeneration = 0;
+function vizDisposeCharts() {
+  vizRenderGeneration += 1;
+  if(vizActiveChart) {vizActiveChart.destroy();vizActiveChart=null;}
+  if(vizPlotlyNode && window.Plotly) {try {window.Plotly.purge(vizPlotlyNode);} catch (_) { /* Already detached. */ }}
+  vizPlotlyNode=null;
+}
+function vizLoadLibrary(which) {
+  const entry=vizLibraries[which];
+  if(!entry || entry.state!=="idle") return;
+  entry.state="loading";
+  const script=document.createElement("script");
+  script.src=entry.url;script.async=true;script.crossOrigin="anonymous";
+  script.onload=()=>{
+    entry.state=(which==="chart" ? typeof window.Chart==="function" : !!window.Plotly?.newPlot) ? "ready":"failed";
+    if(entry.state==="ready" && current==="charts") renderVisualization();
+  };
+  script.onerror=()=>{entry.state="failed";};
+  document.head.appendChild(script);
+}
+function vizChartOptions(label, signed) {
+  return {responsive:true,maintainAspectRatio:false,animation:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:context=>`${label}: ${vizPercent(context.parsed.x ?? context.parsed)}`}}},
+    scales:{x:{ticks:{callback:value=>(value*100).toFixed(0)+"%"},title:{display:true,text:signed?"Contribution / shock (%)":"Portfolio weight (%)"}},y:{ticks:{autoSkip:false}}}};
+}
+function vizEnhancedBars(parent, rows, signed, kind) {
+  const clean=rows.filter(row=>Number.isFinite(row.value));
+  if(!clean.length) {vizEmpty(parent,"No valid numeric chart data available.");return;}
+  const entry=vizLibraries.chart;
+  if(entry.state!=="ready" || typeof window.Chart!=="function") {
+    vizBars(parent,clean,signed);
+    if(entry.state==="idle") vizLoadLibrary("chart");
+    if(entry.state==="failed") parent.appendChild(vizNode("p","Chart.js unavailable; accessible SVG chart is displayed.","viz-chart-caption"));
+    return;
+  }
+  const frame=vizNode("div",undefined,"viz-chart-frame");
+  const canvas=vizNode("canvas");
+  canvas.setAttribute("role","img");canvas.setAttribute("aria-label",kind+" chart with "+clean.length+" data points; numeric values in preceding table");
+  frame.appendChild(canvas);parent.appendChild(frame);
+  const colors=clean.map((row,index)=>signed && row.value<0 ? "#de6c84" : vizColors[index%vizColors.length]);
+  try {
+    vizActiveChart=new window.Chart(canvas,{
+      type:kind==="allocation"?"doughnut":"bar",
+      data:{labels:clean.map(row=>row.label),datasets:[{label:kind==="allocation"?"Portfolio allocation":"Portfolio metric",data:clean.map(row=>row.value),backgroundColor:colors,borderWidth:kind==="allocation"?2:0}]},
+      options:kind==="allocation"?{
+        responsive:true,maintainAspectRatio:false,animation:false,
+        plugins:{legend:{position:"bottom"},tooltip:{callbacks:{label:context=>context.label+": "+vizPercent(context.parsed)}}}
+      }:{...vizChartOptions(kind,true),indexAxis:"y"}
+    });
+    parent.appendChild(vizNode("p","Interactive Chart.js visualization. Exact figures appear in the table above.","viz-chart-caption"));
+  } catch(error) {
+    frame.remove();vizActiveChart=null;vizBars(parent,clean,signed);
+    parent.appendChild(vizNode("p","Interactive chart unavailable; SVG fallback displayed.","viz-chart-caption"));
+  }
+}
+function vizEnhancedFrontier(parent, rows) {
+  const clean=rows.filter(row=>Number.isFinite(row.annualized_volatility)&&Number.isFinite(row.expected_annual_return));
+  if(!clean.length) {vizEmpty(parent,"No valid efficient frontier points available.");return;}
+  const entry=vizLibraries.plotly;
+  if(entry.state!=="ready" || !window.Plotly?.newPlot) {
+    vizScatter(parent,clean);
+    if(entry.state==="idle") vizLoadLibrary("plotly");
+    if(entry.state==="failed") parent.appendChild(vizNode("p","Plotly.js unavailable; accessible SVG chart is displayed.","viz-chart-caption"));
+    return;
+  }
+  const frame=vizNode("div",undefined,"viz-chart-frame");
+  frame.setAttribute("role","img");frame.setAttribute("aria-label","Interactive efficient frontier scatter plot; exact values in preceding table");
+  parent.appendChild(frame);vizPlotlyNode=frame;
+  const generation=vizRenderGeneration;
+  const ordered=[...clean].sort((a,b)=>a.annualized_volatility-b.annualized_volatility);
+  Promise.resolve(window.Plotly.newPlot(frame,[{
+    x:ordered.map(p=>p.annualized_volatility*100),y:ordered.map(p=>p.expected_annual_return*100),
+    type:"scatter",mode:"lines+markers",name:"Efficient frontier",line:{color:"#3264e9"},marker:{color:"#16a6a0",size:8},
+    hovertemplate:"Volatility: %{x:.2f}%<br>Expected return: %{y:.2f}%<extra></extra>"
+  }],{margin:{l:70,r:24,t:24,b:65},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",
+    xaxis:{title:"Annualized volatility (%)",automargin:true},yaxis:{title:"Expected annual return (%)",automargin:true},
+    showlegend:false},{responsive:true,displaylogo:false,modeBarButtonsToRemove:["sendDataToCloud"]}))
+    .then(()=>{if(generation!==vizRenderGeneration && window.Plotly) window.Plotly.purge(frame);})
+    .catch(()=>{if(generation===vizRenderGeneration && frame.isConnected){frame.remove();vizScatter(parent,clean);}});
+  parent.appendChild(vizNode("p","Interactive Plotly.js efficient frontier. Exact values appear in the table above.","viz-chart-caption"));
 }
 
 renderNav();
