@@ -828,7 +828,7 @@ body {
     <h3>Portfolio Visualization — Analytical Dashboard</h3>
     <p class="desc">Skill #5 · Two-dimensional portfolio analytics. Displays actual outputs from Skills #3 and #4 completed in this browser session; no invented performance history.</p>
     <div class="actions">
-      <button class="btn" type="button" onclick="refreshVisualization()">Refresh from completed analyses</button>
+      <button class="btn" type="button" id="vizRefreshBtn" onclick="refreshVisualization(true)">Refresh from completed analyses</button>
       <button class="btn secondary" type="button" onclick="go('optimize')">Run Optimization</button>
       <button class="btn secondary" type="button" onclick="go('risk')">Run Risk Assessment</button>
     </div>
@@ -1096,7 +1096,7 @@ function go(id) {
   }
 
   renderNav();
-  if (id === "charts") refreshVisualization();
+  if (id === "charts") refreshVisualization(false);
   window.scrollTo(0, 0);
 }
 
@@ -2016,22 +2016,51 @@ function vizTable(parent, headings, rows) {
   const body=table.createTBody();rows.forEach(values=>{const row=body.insertRow();values.forEach(value=>row.appendChild(vizNode("td",value)));});
   wrap.appendChild(table);parent.appendChild(wrap);
 }
-function refreshVisualization() {
-  const optimization = typeof lastOptimization !== "undefined" ? lastOptimization : null;
-  const assessment = typeof lastRiskAssessment !== "undefined" ? lastRiskAssessment : null;
-  const optimizationReady = !!(optimization && optimization.downstream_ready && Array.isArray(optimization.allocations));
-  const riskReady = !!(assessment && assessment.status !== "blocked");
-  visualizationSnapshot = {
-    optimization:optimizationReady ? optimization : null,
-    frontier:optimizationReady && typeof lastOptimizationFrontier !== "undefined" ? lastOptimizationFrontier : null,
-    risk:riskReady ? assessment : null,
-    riskRequest:riskReady && typeof lastRiskRequest !== "undefined" ? lastRiskRequest : null
-  };
-  const count=Number(optimizationReady)+Number(riskReady);
-  el("vizFeedback").textContent = count ?
-    "Loaded " + count + " completed upstream analysis source(s) from this browser session. Refresh after rerunning a skill." :
-    "No completed downstream-usable analysis found. Run Skill #3 or #4, then return here.";
-  renderVisualization();
+let visualizationRefreshCount = 0;
+let visualizationLastSignature = null;
+function refreshVisualization(userInitiated = false) {
+  const button = el("vizRefreshBtn");
+  const status = el("vizFeedback");
+  if (userInitiated) {
+    button.disabled = true;
+    status.textContent = "Refreshing completed analyses…";
+  }
+  try {
+    const optimization = typeof lastOptimization !== "undefined" ? lastOptimization : null;
+    const assessment = typeof lastRiskAssessment !== "undefined" ? lastRiskAssessment : null;
+    const optimizationReady = !!(optimization && optimization.downstream_ready && Array.isArray(optimization.allocations));
+    const riskReady = !!(assessment && assessment.status !== "blocked");
+    const frontier = optimizationReady && typeof lastOptimizationFrontier !== "undefined" ? lastOptimizationFrontier : null;
+    visualizationSnapshot = {
+      optimization: optimizationReady ? optimization : null,
+      frontier,
+      risk: riskReady ? assessment : null,
+      riskRequest: riskReady && typeof lastRiskRequest !== "undefined" ? lastRiskRequest : null
+    };
+    const count = Number(optimizationReady) + Number(riskReady);
+    const signature = JSON.stringify(visualizationSnapshot);
+    const changed = signature !== visualizationLastSignature;
+    visualizationLastSignature = signature;
+    renderVisualization();
+    if (userInitiated) {
+      visualizationRefreshCount += 1;
+      const checked = "Checked " + count + " completed upstream analysis source(s)";
+      status.textContent = "Refresh #" + visualizationRefreshCount + " complete — " + checked +
+        (changed ? "; dashboard updated." : "; no new results.") +
+        " Source: current browser session (not backend history).";
+      toast(changed ? "Visualization updated from completed analyses." : "Refresh complete — no new results.");
+    } else {
+      status.textContent = count ?
+        "Loaded " + count + " completed upstream analysis source(s) from this browser session. Refresh after rerunning a skill." :
+        "No completed downstream-usable analysis found. Run Skill #3 or #4, then return here.";
+    }
+  } catch (error) {
+    status.textContent = "Visualization refresh failed: " + (error?.message || String(error));
+    if (userInitiated) toast("Visualization refresh failed.");
+    console.error("IE 591 visualization refresh failed", error);
+  } finally {
+    if (userInitiated) button.disabled = false;
+  }
 }
 function selectVisualizationTab(tab) {
   if (!["overview","allocation","frontier","attribution","stress"].includes(tab)) return;
