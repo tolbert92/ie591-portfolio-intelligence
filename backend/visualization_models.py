@@ -5,7 +5,7 @@ Portfolio performance and frontier metrics are annualized. Stress returns
 describe hypothetical scenarios. Risk measures carry their own horizon and unit.
 """
 
-from __future__ import annotations1
+from __future__ import annotations
 
 from enum import Enum
 from math import fsum
