@@ -61,7 +61,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Skill #5 — Register visualization routes without changing Skills #1–#4.
-app.include_router(visualization_router)
+# Compatibility: this project's pinned FastAPI version adds an internal
+# _IncludedRouter entry to app.routes when include_router() is used. The
+# existing Skill #3 route-regression test expects every entry to have .path.
+# The visualization APIRouter already contains fully prefixed APIRoute objects;
+# register those concrete routes directly to preserve OpenAPI and endpoint data.
+app.router.routes.extend(visualization_router.routes)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_PATH = BASE_DIR / "index.html"
