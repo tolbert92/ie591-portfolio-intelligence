@@ -403,6 +403,22 @@ body {
 .opt-legend span:last-child::before { background:#16a6a0; }
 .opt-meta { font-size:12px; color:var(--muted); margin-top:12px; }
 @media(max-width:760px) { .optimization-results .cards { grid-template-columns:1fr; } }
+
+/* Skill #4 — Risk Assessment */
+.risk-results .cards {grid-template-columns:repeat(4,minmax(0,1fr));}
+.risk-subheading {margin:14px 0 8px;font-weight:700;color:var(--ink);}
+.risk-metric {font-size:24px;font-weight:800;}
+.risk-note {font-size:12px;color:var(--muted);margin-top:8px;}
+.risk-indicator {font-weight:700;}
+.risk-indicator[data-level="very_high"],.risk-indicator[data-level="high"] {color:#a33a2e;}
+.risk-indicator[data-level="moderate"] {color:#91661c;}
+.risk-indicator[data-level="low"] {color:#16766b;}
+.risk-bar {height:10px;background:#edf1f7;border-radius:12px;overflow:hidden;min-width:120px;}
+.risk-bar > span {display:block;height:100%;background:#3264e9;}
+.risk-scenario-negative {color:#a33a2e;font-weight:700;}
+.risk-scenario-positive {color:#16766b;font-weight:700;}
+@media(max-width:1100px) {.risk-results .cards {grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:760px) {.risk-results .cards {grid-template-columns:1fr;}}
 </style>
 </head>
 
@@ -424,7 +440,7 @@ body {
   </div>
 
   <div class="sidefoot">
-    Skills #1–3 — API Integration
+    Skills #1–4 — API Integration
     <p>10 skills · Development mode</p>
     <p>University course project<br>Educational use only</p>
   </div>
@@ -744,6 +760,49 @@ body {
   </div>
 </section>
 
+
+<!-- SKILL 4: RISK ASSESSMENT -->
+<section id="risk" class="hidden">
+  <div class="panel">
+    <h3>Risk Assessment — Analytical Workspace</h3>
+    <p class="desc">Skill #4 — Quantify portfolio downside risk, compare hypothetical stress scenarios, and review investor alignment using the hosted Python engine.</p>
+    <div class="note">Educational synthetic data only. VaR and CVaR are statistical model estimates, not maximum possible losses. Stress shocks are hypothetical, not forecasts. Investor alignment is not a suitability determination.</div>
+    <div class="formgrid">
+      <div class="field"><label for="riskAssessmentId">Assessment ID</label><input id="riskAssessmentId" value="IE591-RISK-DEMO" maxlength="120" onchange="invalidateRisk()"></div>
+      <div class="field"><label for="riskSource">Portfolio source</label><select id="riskSource" onchange="invalidateRisk()"><option value="synthetic">Independent synthetic minimum-variance portfolio</option><option value="optimization">Latest completed Skill #3 optimization (when available)</option></select></div>
+      <div class="field"><label for="riskMethod">Risk methodology</label><select id="riskMethod" onchange="invalidateRisk()"><option value="auto">Auto (historical if sufficient; otherwise parametric)</option><option value="parametric">Parametric</option><option value="historical">Historical (requires observations)</option></select></div>
+      <div class="field"><label for="riskHorizon">Risk horizon</label><select id="riskHorizon" onchange="invalidateRisk()"><option value="1d">1 trading day</option><option value="10d">10 trading days</option><option value="30d">30 trading days</option><option value="1y">1 trading year</option></select></div>
+      <div class="field"><label for="riskConfidence">Confidence level</label><select id="riskConfidence" onchange="invalidateRisk()"><option value="0.90">90%</option><option value="0.95" selected>95%</option><option value="0.975">97.5%</option><option value="0.99">99%</option></select></div>
+      <div class="field"><label for="riskInvestor">Investor alignment</label><select id="riskInvestor" onchange="invalidateRisk()"><option value="none">No investor profile (insufficient information)</option><option value="form">Use current Skill #1 form values (not automatically retrieved)</option></select></div>
+      <div class="field"><label for="riskCustomTicker">Custom shock asset</label><select id="riskCustomTicker" onchange="invalidateRisk()"><option value="">No custom shock</option><option value="ASSET_A">ASSET_A — Equity</option><option value="ASSET_B">ASSET_B — Bonds</option><option value="ASSET_C">ASSET_C — Cash Equivalent</option></select></div>
+      <div class="field"><label for="riskCustomShock">Custom asset shock (%)</label><input id="riskCustomShock" type="number" value="-15" min="-100" max="500" step="0.5" onchange="invalidateRisk()"></div>
+    </div>
+    <div class="note" id="riskFeedback" role="status" aria-live="polite">Check the Risk Assessment engine, then run an assessment. The API URL is configured in Investor Profile.</div>
+    <div class="actions">
+      <button class="btn secondary" id="riskCheckBtn" onclick="checkRiskApi()">Check Risk Engine</button>
+      <button class="btn" id="riskAssessBtn" onclick="runRiskAssessment()">Run Risk Assessment</button>
+      <button class="btn secondary" id="riskScenariosBtn" onclick="runRiskScenarios()">Compare Stress Scenarios</button>
+      <button class="btn secondary" id="riskExportBtn" onclick="exportRiskAssessment()" disabled>Export Risk Assessment JSON</button>
+      <button class="btn secondary" onclick="go('optimize')">Back to Portfolio Optimization</button>
+    </div>
+  </div>
+  <div class="risk-results hidden" id="riskResults">
+    <div class="cards">
+      <div class="card"><div class="k">Annualized Volatility</div><div class="risk-metric" id="riskVolatility">—</div><div class="hint">Portfolio standard deviation</div></div>
+      <div class="card"><div class="k">Value at Risk (VaR)</div><div class="risk-metric" id="riskVar">—</div><div class="hint" id="riskVarCaption">Selected horizon and confidence</div></div>
+      <div class="card"><div class="k">Conditional VaR (CVaR)</div><div class="risk-metric" id="riskCvar">—</div><div class="hint">Expected tail loss, conditional on tail event</div></div>
+      <div class="card"><div class="k">Overall Risk</div><div class="risk-metric risk-indicator" id="riskOverall">—</div><div class="hint" id="riskStatus">Assessment pending</div></div>
+    </div>
+    <div class="layout">
+      <div class="panel"><h3>Risk Classification by Dimension</h3><div class="table-wrap"><table class="table"><thead><tr><th>Dimension</th><th>Classification</th></tr></thead><tbody id="riskDimensions"></tbody></table></div><p class="risk-note">Classification thresholds are illustrative and configurable in the backend contract.</p></div>
+      <div class="panel"><h3>Investor Alignment</h3><div class="risk-subheading" id="riskAlignmentStatus">—</div><div class="mini" id="riskAlignmentDetails"></div></div>
+    </div>
+    <div class="panel"><h3>Asset-Level Risk Attribution</h3><p class="desc">Share of total portfolio volatility attributable to each asset; not the same as portfolio allocation.</p><div class="table-wrap"><table class="table"><thead><tr><th>Asset</th><th>Weight</th><th>Risk Contribution</th><th>Contribution Visualization</th></tr></thead><tbody id="riskContributions"></tbody></table></div></div>
+    <div class="panel"><h3>Hypothetical Stress Scenarios</h3><p class="desc">Simple weighted asset shocks; not predictive market outcomes.</p><div class="table-wrap"><table class="table"><thead><tr><th>Scenario</th><th>Portfolio Impact</th><th>Asset Contributions</th></tr></thead><tbody id="riskScenarioResults"></tbody></table></div></div>
+    <div class="panel"><h3>Methodology, Quality and Provenance</h3><div id="riskMethodDetails" class="mini"></div><div class="risk-subheading">Validation messages</div><div id="riskValidationDetails" class="mini"></div><div class="risk-subheading">Interpretation</div><div id="riskExplanations" class="mini"></div></div>
+  </div>
+</section>
+
 <!-- OTHER SKILLS -->
 <section id="workspace" class="hidden">
   <div class="panel">
@@ -830,9 +889,9 @@ const modules = [
     icon: "◇",
     desc: "Portfolio risk and downside analysis",
     features: [
-      "Volatility and drawdown",
-      "Value at Risk",
-      "Risk attribution"
+      "VaR / CVaR and volatility",
+      "Stress testing and risk classification",
+      "Risk attribution and investor alignment"
     ]
   },
   {
@@ -959,17 +1018,18 @@ function go(id) {
     id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  ["dashboard", "profile", "market", "optimize", "workspace"].forEach(section => {
+  ["dashboard", "profile", "market", "optimize", "risk", "workspace"].forEach(section => {
     const visible =
       id === "dashboard" ? "dashboard" :
       id === "profile" ? "profile" :
       id === "market" ? "market" :
-      id === "optimize" ? "optimize" : "workspace";
+      id === "optimize" ? "optimize" :
+      id === "risk" ? "risk" : "workspace";
 
     el(section).classList.toggle("hidden", section !== visible);
   });
 
-  if (!["dashboard", "profile", "market", "optimize"].includes(id)) {
+  if (!["dashboard", "profile", "market", "optimize", "risk"].includes(id)) {
     el("moduleTitle").textContent = module.name;
     el("moduleDesc").textContent = module.desc;
     el("moduleMessage").textContent =
@@ -1723,6 +1783,173 @@ function exportOptimization() {
     efficient_frontier:lastOptimizationFrontier
   },"ie591-portfolio-optimization.json");
   toast("Optimization JSON exported.");
+}
+
+
+// Skill #4 — Risk Assessment. All calculations are performed by the hosted API.
+let lastRiskRequest = null;
+let lastRiskAssessment = null;
+let lastRiskScenarios = null;
+function riskFeedback(message, ok=true) {
+  const target=el("riskFeedback");
+  target.textContent=message;
+  target.style.borderLeft="4px solid "+(ok?"#16a6a0":"#dc684e");
+}
+function invalidateRisk() {
+  lastRiskRequest=null; lastRiskAssessment=null; lastRiskScenarios=null;
+  el("riskExportBtn").disabled=true;
+  el("riskResults").classList.add("hidden");
+  riskFeedback("Inputs changed. Run a new assessment before exporting.");
+}
+function riskPct(value, digits=2) {
+  return typeof value==="number" && Number.isFinite(value) ? (100*value).toFixed(digits)+"%" : "Unavailable";
+}
+function riskLabel(value) {
+  return String(value??"indeterminate").replaceAll("_"," ").replace(/\b\w/g,letter=>letter.toUpperCase());
+}
+function riskRequest() {
+  const id=el("riskAssessmentId").value.trim();
+  if (!id) throw new Error("Enter an assessment ID.");
+  let portfolio;
+  if (el("riskSource").value==="optimization") {
+    if (!lastOptimization || !lastOptimizationPayload || lastOptimization.status!=="completed" || lastOptimization.downstream_ready!==true) {
+      throw new Error("Run a successful Skill #3 optimization first, then return here. This source uses the latest completed result.");
+    }
+    const allocation=new Map(lastOptimization.allocations.map(a=>[a.ticker,a.weight]));
+    const source=lastOptimizationPayload;
+    if (allocation.size!==source.assets.length || source.assets.some(a=>!allocation.has(a.ticker))) {
+      throw new Error("Skill #3 allocations do not match source assets.");
+    }
+    portfolio={portfolio_id:source.optimization_id,assets:source.assets.map(a=>({ticker:a.ticker,asset_name:a.asset_name,asset_class:a.asset_class,weight:allocation.get(a.ticker),expected_annual_return:a.expected_annual_return})),covariance_matrix:source.covariance_matrix,provenance:source.provenance};
+  } else {
+    portfolio={
+      portfolio_id:"IE591-RISK-SYNTHETIC-PORTFOLIO",
+      assets:[
+        {ticker:"ASSET_A",asset_name:"Synthetic Equity",asset_class:"equity",weight:0.2,expected_annual_return:0.12},
+        {ticker:"ASSET_B",asset_name:"Synthetic Bonds",asset_class:"fixed_income",weight:0.8,expected_annual_return:0.06}
+      ],
+      covariance_matrix:[[0.04,0],[0,0.01]],
+      provenance:{source_type:"synthetic",source_name:"IE 591 Risk Assessment Browser Dataset",dataset_id:"BROWSER-RISK-TWO",upstream_analysis_id:"IE591-OPT-DEMO",is_synthetic:true}
+    };
+  }
+  const request={assessment_id:id,portfolio,config:{method:el("riskMethod").value,horizon:el("riskHorizon").value,confidence_level:Number(el("riskConfidence").value),trading_days_per_year:252},stress_scenarios:[]};
+  if (el("riskInvestor").value==="form") {
+    const years=Number(el("horizon").value);
+    if (!Number.isFinite(years)||years<=0) throw new Error("Investor horizon must be positive.");
+    request.investor_profile={profile_id:el("investorId").value.trim()||null,risk_tolerance:el("risk").value,investment_horizon_years:years,financial_objectives:[],constraints:[]};
+  }
+  const customTicker=el("riskCustomTicker").value;
+  if (customTicker) {
+    if (!portfolio.assets.some(a=>a.ticker===customTicker)) throw new Error("Selected custom shock asset is not in this portfolio.");
+    const shock=Number(el("riskCustomShock").value);
+    if (!Number.isFinite(shock)||shock < -100) throw new Error("Custom shock must be a finite percentage of at least -100%.");
+    request.stress_scenarios=[{scenario_id:"CUSTOM-USER-SHOCK",name:"User-defined asset shock",scenario_type:"custom",shocks:[{ticker:customTicker,shock_return:shock/100}]}];
+  }
+  return request;
+}
+async function riskPost(path, payload) {
+  const response=await fetch(apiUrl(path),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const data=await response.json();
+  if (!response.ok) {
+    const detail=data?.detail;
+    const message=typeof detail==="string"?detail:detail?.message||(Array.isArray(detail)?detail.map(x=>x.msg).join("; "):JSON.stringify(data));
+    throw new Error("HTTP "+response.status+": "+message);
+  }
+  return data;
+}
+async function checkRiskApi() {
+  const button=el("riskCheckBtn"); button.disabled=true;
+  try {
+    const response=await fetch(apiUrl("/api/risk/status"));
+    const data=await response.json();
+    if (!response.ok||data.engine!=="available") throw new Error("Risk engine is not available.");
+    riskFeedback("Risk engine connected. Contract "+data.contract_version+"; methods: "+data.methods.join(", ")+".");
+    toast("Risk Assessment API connected.");
+  } catch(error) {riskFeedback("Risk engine check failed: "+error.message,false);}
+  finally {button.disabled=false;}
+}
+function riskTextList(container, values, fallback) {
+  const node=el(container);node.replaceChildren();
+  const items=Array.isArray(values)?values.filter(Boolean):[];
+  if (!items.length) {node.textContent=fallback;return;}
+  const list=document.createElement("ul");
+  items.forEach(value=>{const item=document.createElement("li");item.textContent=String(value);list.appendChild(item);});
+  node.appendChild(list);
+}
+function renderRiskScenarios(items) {
+  const tbody=el("riskScenarioResults");tbody.replaceChildren();
+  if (!Array.isArray(items)||!items.length) {const row=tbody.insertRow();const cell=row.insertCell();cell.colSpan=3;cell.textContent="No stress results returned.";return;}
+  items.forEach(item=>{
+    const row=tbody.insertRow();
+    row.insertCell().textContent=riskLabel(item.scenario_id);
+    const impact=row.insertCell();impact.textContent=riskPct(item.portfolio_shock_return);impact.className=item.portfolio_shock_return<0?"risk-scenario-negative":"risk-scenario-positive";
+    row.insertCell().textContent=Object.entries(item.contributions||{}).map(([ticker,value])=>ticker+": "+riskPct(value)).join(" · ")||"—";
+  });
+}
+function renderRiskAssessment(data) {
+  el("riskResults").classList.remove("hidden");
+  el("riskVolatility").textContent=riskPct(data.annualized_volatility);
+  el("riskVar").textContent=data.value_at_risk?riskPct(data.value_at_risk.value):"Unavailable";
+  el("riskCvar").textContent=data.conditional_value_at_risk?riskPct(data.conditional_value_at_risk.value):"Unavailable";
+  el("riskVarCaption").textContent=data.horizon+" · "+riskPct(data.confidence_level,1)+" confidence · "+riskLabel(data.method_used||data.method_requested);
+  const level=data.classification?.overall||"indeterminate";
+  el("riskOverall").textContent=riskLabel(level);
+  el("riskOverall").dataset.level=level;
+  el("riskStatus").textContent="Assessment: "+riskLabel(data.status)+" · Downstream ready: "+(data.downstream_ready?"Yes":"No");
+  const dims=el("riskDimensions");dims.replaceChildren();
+  Object.entries(data.classification?.dimensions||{}).forEach(([name,value])=>{
+    const row=dims.insertRow();row.insertCell().textContent=riskLabel(name);
+    const cell=row.insertCell();cell.textContent=riskLabel(value);cell.className="risk-indicator";cell.dataset.level=value;
+  });
+  const alignment=data.investor_alignment;
+  el("riskAlignmentStatus").textContent=riskLabel(alignment?.status||"insufficient_information");
+  riskTextList("riskAlignmentDetails",[...(alignment?.explanations||[]),...(alignment?.missing_fields||[]).map(field=>"Missing: "+field)],"No investor alignment details available.");
+  const contrib=el("riskContributions");contrib.replaceChildren();
+  (data.asset_risk_contributions||[]).forEach(asset=>{
+    const row=contrib.insertRow();row.insertCell().textContent=asset.ticker;row.insertCell().textContent=riskPct(asset.weight);
+    row.insertCell().textContent=riskPct(asset.percent_total_risk);
+    const cell=row.insertCell();const bar=document.createElement("div");bar.className="risk-bar";
+    const fill=document.createElement("span");fill.style.width=Math.max(0,Math.min(100,100*asset.percent_total_risk))+"%";bar.appendChild(fill);cell.appendChild(bar);
+  });
+  renderRiskScenarios(data.stress_results);
+  el("riskMethodDetails").textContent="Requested: "+riskLabel(data.method_requested)+" · Used: "+riskLabel(data.method_used||"unavailable")+" · Horizon: "+data.horizon+" · Confidence: "+riskPct(data.confidence_level,1)+" · Source: "+(data.provenance?.source_name||"Unknown")+(data.method_fallback_reason?" · Fallback: "+data.method_fallback_reason:"");
+  const messages=[...(data.validation?.issues||[]).map(issue=>riskLabel(issue.severity)+": "+issue.message),...(data.validation?.disabled_calculations||[]).map(value=>"Disabled: "+value)];
+  riskTextList("riskValidationDetails",messages,"No validation issues reported.");
+  riskTextList("riskExplanations",data.classification?.explanations||[],"No classification explanations returned.");
+}
+async function runRiskAssessment() {
+  const button=el("riskAssessBtn");button.disabled=true;el("riskExportBtn").disabled=true;
+  try {
+    const payload=riskRequest();riskFeedback("Calculating portfolio risk...");
+    const data=await riskPost("/api/risk/assess",payload);
+    lastRiskRequest=payload;lastRiskAssessment=data;lastRiskScenarios=data.stress_results||[];
+    renderRiskAssessment(data);el("riskExportBtn").disabled=false;
+    riskFeedback("Assessment "+data.status+". Method: "+(data.method_used||"unavailable")+". Quality: "+(data.validation?.status||"unknown")+".");
+    toast("Risk Assessment completed.");
+  } catch(error) {lastRiskRequest=null;lastRiskAssessment=null;lastRiskScenarios=null;el("riskExportBtn").disabled=true;el("riskResults").classList.add("hidden");riskFeedback("Risk assessment failed: "+error.message,false);}
+  finally {button.disabled=false;}
+}
+async function runRiskScenarios() {
+  const button=el("riskScenariosBtn");button.disabled=true;
+  try {
+    const payload=riskRequest();riskFeedback("Calculating hypothetical stress scenarios...");
+    const data=await riskPost("/api/risk/scenarios",payload);
+    lastRiskScenarios=data;
+    // A scenarios-only run does not change the validated assessment/export package.
+    if (!lastRiskAssessment) {
+      el("riskResults").classList.remove("hidden");
+      el("riskMethodDetails").textContent="Stress scenarios only. Run Risk Assessment to calculate VaR/CVaR, classification and attribution.";
+    }
+    renderRiskScenarios(data);
+    riskFeedback("Calculated "+data.length+" hypothetical stress scenarios.");
+    toast("Stress scenarios calculated.");
+  } catch(error) {riskFeedback("Stress testing failed: "+error.message,false);}
+  finally {button.disabled=false;}
+}
+function exportRiskAssessment() {
+  if (!lastRiskRequest||!lastRiskAssessment) {riskFeedback("Run Risk Assessment before exporting.",false);return;}
+  downloadJson({project:"IE 591 Portfolio Intelligence",skill:"Risk Assessment",contract_version:"1.0.0",synthetic:lastRiskRequest.portfolio.provenance.is_synthetic,input:lastRiskRequest,assessment:lastRiskAssessment},"ie591-risk-assessment.json");
+  toast("Risk Assessment JSON exported.");
 }
 
 renderNav();
