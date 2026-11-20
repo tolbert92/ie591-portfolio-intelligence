@@ -1,4 +1,3 @@
-
 """IE 591 Skill #4 — Stage 4.2: deterministic portfolio risk calculation engine.
 
 Inputs and outputs use backend.risk_models (Pydantic v2). No API, I/O, network,
@@ -95,7 +94,3 @@ def parametric_tail_risk(
 ) -> tuple[float, float]:
     """Normal-distribution VaR and CVaR for positive-loss convention."""
     if not (0 < confidence_level < 1):
-
-
-
-
