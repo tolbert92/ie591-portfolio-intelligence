@@ -37,6 +37,8 @@ from .risk_scenarios import (
     SCENARIO_VERSION, evaluate_stress_scenarios, compare_stress_results,
     unmapped_asset_classes,
 )
+from .visualization_api import router as visualization_router
+
 from .risk_classification import (
     CLASSIFICATION_VERSION, classify_portfolio_risk,
     assess_investor_alignment,
@@ -58,6 +60,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Skill #5 — Register visualization routes without changing Skills #1–#4.
+app.include_router(visualization_router)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_PATH = BASE_DIR / "index.html"
 
