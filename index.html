@@ -762,7 +762,7 @@ body {
 
 
 <!-- SKILL 4: RISK ASSESSMENT -->
-<section id="risk" class="hidden">
+<section id="riskWorkspace" class="hidden">
   <div class="panel">
     <h3>Risk Assessment — Analytical Workspace</h3>
     <p class="desc">Skill #4 — Quantify portfolio downside risk, compare hypothetical stress scenarios, and review investor alignment using the hosted Python engine.</p>
@@ -1018,13 +1018,13 @@ function go(id) {
     id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  ["dashboard", "profile", "market", "optimize", "risk", "workspace"].forEach(section => {
+  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "workspace"].forEach(section => {
     const visible =
       id === "dashboard" ? "dashboard" :
       id === "profile" ? "profile" :
       id === "market" ? "market" :
       id === "optimize" ? "optimize" :
-      id === "risk" ? "risk" : "workspace";
+      id === "risk" ? "riskWorkspace" : "workspace";
 
     el(section).classList.toggle("hidden", section !== visible);
   });
