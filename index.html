@@ -521,14 +521,14 @@ body {
     <div class="hint">Synthetic example</div>
   </div>
   <div class="card">
-    <div class="k">Illustrative Annual Return</div>
-    <div class="v">7.4%</div>
-    <div class="hint">Not a forecast</div>
+    <div class="k">Expected Annual Return</div>
+    <div class="v" id="dashExpectedReturn">Unavailable</div>
+    <div class="hint" id="dashReturnSource">Run Portfolio Optimization</div>
   </div>
   <div class="card">
-    <div class="k">Illustrative Volatility</div>
-    <div class="v">12.1%</div>
-    <div class="hint">Sample metric</div>
+    <div class="k">Annualized Volatility</div>
+    <div class="v" id="dashAnnualizedVolatility">Unavailable</div>
+    <div class="hint" id="dashVolatilitySource">Run Portfolio Optimization</div>
   </div>
   <div class="card">
     <div class="k">Skills Connected</div>
@@ -1221,7 +1221,10 @@ function go(id) {
   if (id === "charts") refreshVisualization(false);
   if (id === "3d") refreshExplorer();
   if (id === "reports") renderProjectReport();
-  if (id === "dashboard") updateDashboardEvidence();
+  if (id === "dashboard") {
+    updateDashboardMetrics();
+    updateDashboardEvidence();
+  }
   window.scrollTo(0, 0);
 }
 
@@ -1730,6 +1733,7 @@ function optimizationFeedback(message, ok=true) {
 }
 function invalidateOptimization() {
   lastOptimization = null;
+  updateDashboardMetrics();
   lastOptimizationFrontier = null;
   lastOptimizationPayload = null;
   el("optimizationExportBtn").disabled = true;
@@ -1839,6 +1843,7 @@ async function runOptimization() {
     renderOptimization(data);
     lastOptimization = data;
     lastOptimizationPayload = payload;
+    updateDashboardMetrics();
     el("optimizationExportBtn").disabled = false;
     optimizationFeedback("Optimization completed · " + data.objective + " · Quality: " + data.quality.status + ".");
     toast("Portfolio optimization completed.");
@@ -1904,6 +1909,7 @@ async function runOptimizationFrontier() {
     // Keep a selected solution only if it was generated for identical inputs.
     if(JSON.stringify(payload)!==JSON.stringify(lastOptimizationPayload)) {
       lastOptimization=null;
+      updateDashboardMetrics();
       el("optimizationResults").classList.add("hidden");
     }
     lastOptimizationFrontier=null;
@@ -2998,6 +3004,19 @@ function buildProjectReport() {
     generated_at: new Date().toISOString(), source: "current_browser_tab",
     skills, validation_cases
   };
+}
+
+function updateDashboardMetrics() {
+  const optimization = lastOptimization?.downstream_ready ? lastOptimization : null;
+  const metrics = optimization?.portfolio_metrics;
+  const source = optimization?.provenance?.is_synthetic ? "Synthetic optimization" : "Portfolio Optimization";
+  for (const [valueId, sourceId, metric] of [
+    ["dashExpectedReturn", "dashReturnSource", metrics?.expected_annual_return],
+    ["dashAnnualizedVolatility", "dashVolatilitySource", metrics?.annualized_volatility]
+  ]) {
+    el(valueId).textContent = vizPercent(metric);
+    el(sourceId).textContent = Number.isFinite(metric) ? source : "Run Portfolio Optimization";
+  }
 }
 
 function updateDashboardEvidence() {
