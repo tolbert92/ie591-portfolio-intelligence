@@ -725,8 +725,8 @@ body {
       <div class="field"><label for="optimizationRiskFree">Annual risk-free rate (%)</label><input id="optimizationRiskFree" type="number" min="-10" max="50" step="0.1" value="2" onchange="invalidateOptimization()"></div>
       <div class="field"><label for="optimizationMinEquity">Minimum equity allocation (%)</label><input id="optimizationMinEquity" type="number" min="0" max="100" step="1" value="0" onchange="invalidateOptimization()"></div>
       <div class="field"><label for="optimizationMaxEquity">Maximum equity allocation (%)</label><input id="optimizationMaxEquity" type="number" min="0" max="100" step="1" value="100" onchange="invalidateOptimization()"></div>
-      <div class="field"><label for="optimizationMinReturn">Minimum portfolio annual return (%) — optional</label><input id="optimizationMinReturn" type="number" step="0.1" placeholder="No minimum" onchange="invalidateOptimization()"></div>
-      <div class="field"><label for="optimizationMaxVolatility">Maximum annual volatility (%) — optional</label><input id="optimizationMaxVolatility" type="number" min="0" step="0.1" placeholder="No maximum" onchange="invalidateOptimization()"></div>
+      <div class="field"><label for="optimizationMinReturn">Minimum portfolio annual return (%) — optional</label><input id="optimizationMinReturn" type="number" step="0.1" placeholder="No minimum" onchange="invalidateOptimization()" aria-describedby="optimizationReturnRange"><p class="mini" id="optimizationReturnRange" aria-live="polite"></p></div>
+      <div class="field"><label for="optimizationMaxVolatility">Maximum annual volatility (%) — optional</label><input id="optimizationMaxVolatility" type="number" min="0" step="0.1" placeholder="No maximum" onchange="invalidateOptimization()" aria-describedby="optimizationVolatilityRange"><p class="mini" id="optimizationVolatilityRange" aria-live="polite"></p></div>
       <div class="field"><label for="optimizationFrontierPoints">Efficient frontier points (2–200)</label><input id="optimizationFrontierPoints" type="number" min="2" max="200" step="1" value="15" onchange="invalidateOptimization()"></div>
     </div>
     <div id="optimizationFeedback" class="note" role="status" aria-live="polite">Optimization engine not yet checked.</div>
@@ -1722,26 +1722,32 @@ function optimizationNumber(id, min, max, optional=false) {
   }
   return value;
 }
-function syntheticOptimizationPayload() {
-  const id = el("optimizationId").value.trim();
-  if (!id) throw new Error("Enter an optimization ID.");
+function syntheticOptimizationUniverse() {
   const three = el("optimizationDataset").value === "three";
-  const minimum = optimizationNumber("optimizationMinEquity",0,100)/100;
-  const maximum = optimizationNumber("optimizationMaxEquity",0,100)/100;
+  const minimum = optimizationNumber("optimizationMinEquity", 0, 100) / 100;
+  const maximum = optimizationNumber("optimizationMaxEquity", 0, 100) / 100;
   if (minimum > maximum) throw new Error("Minimum equity allocation exceeds maximum.");
-  const riskFree = optimizationNumber("optimizationRiskFree",-10,50)/100;
-  const minReturn = optimizationNumber("optimizationMinReturn",-100,100,true);
-  const maxVol = optimizationNumber("optimizationMaxVolatility",0,100,true);
-  const points = optimizationNumber("optimizationFrontierPoints",2,200);
-  if (!Number.isInteger(points)) throw new Error("Frontier point count must be an integer.");
   const assets = [
     {ticker:"ASSET_A",asset_name:"Synthetic Equity",asset_class:"equity",expected_annual_return:0.12,minimum_weight:minimum,maximum_weight:maximum},
     {ticker:"ASSET_B",asset_name:"Synthetic Bonds",asset_class:"fixed_income",expected_annual_return:0.06,minimum_weight:0,maximum_weight:1}
   ];
   if (three) assets.push({ticker:"ASSET_C",asset_name:"Synthetic Cash Equivalent",asset_class:"cash_equivalent",expected_annual_return:0.03,minimum_weight:0,maximum_weight:1});
-  const covariance = three
-    ? [[0.04,0,0],[0,0.01,0],[0,0,0.0025]]
-    : [[0.04,0],[0,0.01]];
+  const variances = three ? [0.04, 0.01, 0.0025] : [0.04, 0.01];
+  const covariance = variances.map((variance, i) =>
+    variances.map((_, j) => i === j ? variance : 0)
+  );
+  return {three, assets, variances, covariance, minimum, maximum};
+}
+
+function syntheticOptimizationPayload() {
+  const id = el("optimizationId").value.trim();
+  if (!id) throw new Error("Enter an optimization ID.");
+  const {three, assets, covariance} = syntheticOptimizationUniverse();
+  const riskFree = optimizationNumber("optimizationRiskFree",-10,50)/100;
+  const minReturn = optimizationNumber("optimizationMinReturn",-100,100,true);
+  const maxVol = optimizationNumber("optimizationMaxVolatility",0,100,true);
+  const points = optimizationNumber("optimizationFrontierPoints",2,200);
+  if (!Number.isInteger(points)) throw new Error("Frontier point count must be an integer.");
   const constraints = {fully_invested:true,allow_short_selling:false,allow_leverage:false};
   if (minReturn !== null) constraints.minimum_expected_annual_return = minReturn/100;
   if (maxVol !== null) constraints.maximum_annual_volatility = maxVol/100;
@@ -1754,6 +1760,110 @@ function syntheticOptimizationPayload() {
     provenance:{source_type:"synthetic",source_name:"IE 591 Browser Optimization Dataset",dataset_id:three?"BROWSER-OPT-THREE":"BROWSER-OPT-TWO",upstream_analysis_id:"MARKET-SYNTH-001",is_synthetic:true}
   };
 }
+function syntheticFeasibleRanges(universe, returnFloor, volatilityCap) {
+  // The current synthetic assets have a diagonal covariance matrix. With
+  // at most three weights, the fully invested long-only set is a line or polygon.
+  const {assets, variances, minimum, maximum, three} = universe;
+  const returns = assets.map(asset => asset.expected_annual_return);
+  const epsilon = 1e-12;
+  const sum = values => values.reduce((total, value) => total + value, 0);
+  const annualReturn = weights => sum(weights.map((weight, i) => weight * returns[i]));
+  const variance = weights => sum(weights.map((weight, i) => variances[i] * weight ** 2));
+  const interpolate = (a, b, t) => a.map((weight, i) => weight + t * (b[i] - weight));
+  const inside = weights => weights[0] >= minimum - epsilon &&
+    weights[0] <= maximum + epsilon && weights.every(weight => weight >= -epsilon);
+  const vertices = three
+    ? [[minimum, 0, 1 - minimum], [maximum, 0, 1 - maximum],
+       [maximum, 1 - maximum, 0], [minimum, 1 - minimum, 0]]
+    : [[minimum, 1 - minimum], [maximum, 1 - maximum]];
+  const edges = polygon => polygon.map((start, i) => [start, polygon[(i + 1) % polygon.length]]);
+  const center = variances.map(value => 1 / value / sum(variances.map(v => 1 / v)));
+
+  // Clip the allocation boundary by the return floor for volatility extrema.
+  const clipped = [];
+  for (const [a, b] of edges(vertices)) {
+    const ra = annualReturn(a), rb = annualReturn(b);
+    const keepA = returnFloor === null || ra >= returnFloor - epsilon;
+    const keepB = returnFloor === null || rb >= returnFloor - epsilon;
+    if (keepA) clipped.push(a);
+    if (keepA !== keepB && ra !== rb) {
+      const t = (returnFloor - ra) / (rb - ra);
+      clipped.push(interpolate(a, b, Math.max(0, Math.min(1, t))));
+    }
+  }
+  const volatilityCandidates = [...clipped];
+  for (const [a, b] of edges(clipped)) {
+    const delta = b.map((weight, i) => weight - a[i]);
+    const quadratic = variance(delta);
+    if (quadratic > 0) {
+      const slope = sum(delta.map((change, i) => variances[i] * change * a[i]));
+      volatilityCandidates.push(interpolate(a, b, Math.max(0, Math.min(1, -slope / quadratic))));
+    }
+  }
+  if (inside(center) && (returnFloor === null || annualReturn(center) >= returnFloor - epsilon)) {
+    volatilityCandidates.push(center);
+  }
+
+  // Return extrema are feasible vertices, cap crossings on edges, or
+  // extrema of return on the volatility ellipse within the allocation bounds.
+  const capSquared = volatilityCap === null ? Infinity : volatilityCap ** 2;
+  const returnCandidates = vertices.filter(weights => variance(weights) <= capSquared + epsilon);
+  if (volatilityCap !== null) {
+    for (const [a, b] of edges(vertices)) {
+      const delta = b.map((weight, i) => weight - a[i]);
+      const quadratic = variance(delta);
+      if (quadratic === 0) continue;
+      const midpoint = -sum(delta.map((change, i) => variances[i] * change * a[i])) / quadratic;
+      const distanceSquared = (capSquared - variance(interpolate(a, b, midpoint))) / quadratic;
+      if (distanceSquared < -epsilon) continue;
+      const distance = Math.sqrt(Math.max(0, distanceSquared));
+      for (const t of [midpoint - distance, midpoint + distance]) {
+        if (t >= -epsilon && t <= 1 + epsilon) {
+          returnCandidates.push(interpolate(a, b, Math.max(0, Math.min(1, t))));
+        }
+      }
+    }
+    const centeredReturn = annualReturn(center);
+    const direction = returns.map((value, i) => (value - centeredReturn) / variances[i]);
+    const slack = capSquared - variance(center);
+    if (slack >= -epsilon && variance(direction) > 0) {
+      const scale = Math.sqrt(Math.max(0, slack) / variance(direction));
+      for (const sign of [-1, 1]) {
+        const weights = center.map((weight, i) => weight + sign * scale * direction[i]);
+        if (inside(weights)) returnCandidates.push(weights);
+      }
+    }
+  }
+  const range = values => values.length ? [Math.min(...values), Math.max(...values)] : null;
+  return {
+    annualReturn: range(returnCandidates.map(annualReturn)),
+    volatility: range(volatilityCandidates.map(weights => Math.sqrt(variance(weights))))
+  };
+}
+
+function updateOptimizationRanges() {
+  const returnHint = el("optimizationReturnRange");
+  const volatilityHint = el("optimizationVolatilityRange");
+  try {
+    const universe = syntheticOptimizationUniverse();
+    const returnFloor = optimizationNumber("optimizationMinReturn", -100, 100, true);
+    const volatilityCap = optimizationNumber("optimizationMaxVolatility", 0, 100, true);
+    const ranges = syntheticFeasibleRanges(universe,
+      returnFloor === null ? null : returnFloor / 100,
+      volatilityCap === null ? null : volatilityCap / 100);
+    const format = ([min, max]) => `≈ ${(min * 100).toFixed(3)}% to ${(max * 100).toFixed(3)}%`;
+    returnHint.textContent = ranges.annualReturn
+      ? `Feasible return: ${format(ranges.annualReturn)}${volatilityCap === null ? "." : " with the current volatility cap."}`
+      : "No portfolio meets the current volatility cap and equity bounds.";
+    volatilityHint.textContent = ranges.volatility
+      ? `Feasible volatility: ${format(ranges.volatility)}${returnFloor === null ? "." : " with the current return floor."}`
+      : "No portfolio meets the current return floor and equity bounds.";
+  } catch (error) {
+    returnHint.textContent = error.message;
+    volatilityHint.textContent = "";
+  }
+}
+
 function optimizationError(data) {
   if (data && data.detail && typeof data.detail === "object" && !Array.isArray(data.detail)) {
     return data.detail.message || JSON.stringify(data.detail);
@@ -3098,6 +3208,11 @@ function printProjectReport() {
 renderNav();
 renderWorkflow();
 restoreDemo();
+for (const id of ["optimizationDataset", "optimizationMinEquity", "optimizationMaxEquity",
+  "optimizationMinReturn", "optimizationMaxVolatility"]) {
+  el(id).addEventListener("input", updateOptimizationRanges);
+}
+updateOptimizationRanges();
 const linkedSkill = new URLSearchParams(window.location.search).get("skill");
 if (linkedSkill) go(linkedSkill);
 </script>
