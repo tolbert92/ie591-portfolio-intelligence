@@ -37,6 +37,8 @@ from .risk_scenarios import (
     SCENARIO_VERSION, evaluate_stress_scenarios, compare_stress_results,
     unmapped_asset_classes,
 )
+from .forward_test_engine import ForwardTestResult, run_forward_test
+from .forward_test_models import ForwardTestRequest
 from .visualization_api import router as visualization_router
 
 from .risk_classification import (
@@ -327,3 +329,8 @@ def serve_frontend():
     if not FRONTEND_PATH.is_file():
         raise HTTPException(status_code=404, detail="Frontend index.html not found.")
     return FileResponse(FRONTEND_PATH, media_type="text/html")
+
+
+@app.post("/api/forward-test/run", response_model=ForwardTestResult)
+def run_forward_test_endpoint(request: ForwardTestRequest) -> ForwardTestResult:
+    return run_forward_test(request)
