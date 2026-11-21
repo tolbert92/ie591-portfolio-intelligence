@@ -1496,35 +1496,24 @@ function downloadDemo() {
 }
 
 function renderWorkflow() {
-  const steps = [
-    ["1", "Investor Profile", "profile"],
-    ["2", "Market Data", "market"],
-    ["3", "Optimization", "optimize"],
-    ["4", "Risk & Simulation", "risk"],
-    ["5", "Decision Support", "decision"]
-  ];
-
   const container = el("workflow");
-
-  steps.forEach(([number, title, id]) => {
+  const skills = modules.filter(module => module.id !== "dashboard" && module.id !== "reports");
+  container.replaceChildren(...skills.map((skill, index) => {
     const button = document.createElement("button");
+    button.type = "button";
     button.className = "step";
 
     const circle = document.createElement("span");
     circle.className = "circle";
-    circle.textContent = number;
+    circle.textContent = String(index + 1);
 
     const label = document.createElement("strong");
-    label.textContent = title;
+    label.textContent = skill.name;
 
-    const caption = document.createElement("small");
-    caption.textContent = "Open workspace";
-
-    button.append(circle, label, caption);
-    button.addEventListener("click", () => go(id));
-
-    container.appendChild(button);
-  });
+    button.append(circle, label);
+    button.addEventListener("click", () => go(skill.id));
+    return button;
+  }));
 }
 
 function restoreDemo() {
