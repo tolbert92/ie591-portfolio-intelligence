@@ -41,6 +41,8 @@ from .forward_test_engine import ForwardTestResult, run_forward_test
 from .forward_test_models import ForwardTestRequest
 from .monte_carlo_engine import MonteCarloResult, run_monte_carlo
 from .monte_carlo_models import MonteCarloRequest
+from .strategy_comparison_engine import StrategyComparisonResult, compare_strategies
+from .strategy_comparison_models import StrategyComparisonRequest
 from .visualization_api import router as visualization_router
 
 from .risk_classification import (
@@ -347,3 +349,10 @@ def run_monte_carlo_endpoint(request: MonteCarloRequest) -> MonteCarloResult:
             status_code=422,
             detail={"code": "MONTE_CARLO_SIMULATION_FAILED", "message": str(exc)},
         ) from exc
+
+
+@app.post("/api/strategy-comparison/run", response_model=StrategyComparisonResult)
+def run_strategy_comparison_endpoint(
+    request: StrategyComparisonRequest,
+) -> StrategyComparisonResult:
+    return compare_strategies(request)
