@@ -848,6 +848,28 @@ body {
 </section>
 
 <!-- OTHER SKILLS -->
+<section id="explorerWorkspace" class="hidden">
+  <div class="panel">
+    <h3>Efficient Frontier in 3D</h3>
+    <div class="actions">
+      <button class="btn secondary" type="button" onclick="go('optimize')">Open Portfolio Optimization</button>
+      <button class="btn" type="button" onclick="refreshExplorer()">Refresh frontier</button>
+    </div>
+    <p id="explorerStatus" class="note" role="status"></p>
+    <div id="explorerResults" class="hidden">
+      <div class="field" style="max-width: 280px">
+        <label for="explorerTicker">Allocation asset</label>
+        <select id="explorerTicker" onchange="renderExplorer()"></select>
+      </div>
+      <p id="explorerChartStatus" class="desc" role="status"></p>
+      <div id="explorerChart" style="width: 100%"></div>
+      <details>
+        <summary>Show exact frontier values</summary>
+        <div id="explorerTable"></div>
+      </details>
+    </div>
+  </div>
+</section>
 <section id="workspace" class="hidden">
   <div class="panel">
     <h3 id="moduleTitle"></h3>
@@ -1054,8 +1076,9 @@ function go(id) {
   const module = modules.find(m => m.id === id);
   if (!module) return;
 
+  if (current === "3d" && id !== "3d") disposeExplorerPlot();
   current = id;
-  el("dashboardExportBtn").classList.toggle("hidden", id === "charts");
+  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d");
 
   el("sidebar").classList.remove("open");
   el("breadcrumb").textContent = module.name;
@@ -1063,19 +1086,20 @@ function go(id) {
     id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "workspace"].forEach(section => {
+  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "workspace"].forEach(section => {
     const visible =
       id === "dashboard" ? "dashboard" :
       id === "profile" ? "profile" :
       id === "market" ? "market" :
       id === "optimize" ? "optimize" :
       id === "risk" ? "riskWorkspace" :
-      id === "charts" ? "visualizationWorkspace" : "workspace";
+      id === "charts" ? "visualizationWorkspace" :
+      id === "3d" ? "explorerWorkspace" : "workspace";
 
     el(section).classList.toggle("hidden", section !== visible);
   });
 
-  if (!["dashboard", "profile", "market", "optimize", "risk", "charts"].includes(id)) {
+  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d"].includes(id)) {
     el("moduleTitle").textContent = module.name;
     el("moduleDesc").textContent = module.desc;
     el("moduleMessage").textContent =
@@ -1099,6 +1123,7 @@ function go(id) {
 
   renderNav();
   if (id === "charts") refreshVisualization(false);
+  if (id === "3d") refreshExplorer();
   window.scrollTo(0, 0);
 }
 
@@ -2233,8 +2258,12 @@ function vizLoadLibrary(which) {
   script.onload=()=>{
     entry.state=(which==="chart" ? typeof window.Chart==="function" : !!window.Plotly?.newPlot) ? "ready":"failed";
     if(entry.state==="ready" && current==="charts") renderVisualization();
+    if(which==="plotly" && current==="3d") renderExplorer();
   };
-  script.onerror=()=>{entry.state="failed";};
+  script.onerror=()=>{
+    entry.state="failed";
+    if(which==="plotly" && current==="3d") renderExplorer();
+  };
   document.head.appendChild(script);
 }
 function vizChartOptions(label, signed) {
@@ -2297,6 +2326,120 @@ function vizEnhancedFrontier(parent, rows) {
     .then(()=>{if(generation!==vizRenderGeneration && window.Plotly) window.Plotly.purge(frame);})
     .catch(()=>{if(generation===vizRenderGeneration && frame.isConnected){frame.remove();vizScatter(parent,clean);}});
   parent.appendChild(vizNode("p","Interactive Plotly.js efficient frontier. Exact values appear in the table above.","viz-chart-caption"));
+}
+
+let explorerFrontier = [];
+let explorerPlot = null;
+
+function explorerCoordinates(frontier, ticker) {
+  return frontier.map(point => {
+    const allocation = point.allocations.find(row => row.ticker === ticker);
+    const values = [point.annualized_volatility, point.expected_annual_return, allocation?.weight];
+    if (!values.every(Number.isFinite) || values[0] < 0 || values[2] < 0 || values[2] > 1) {
+      throw new Error("A frontier point is missing valid risk, return, or allocation data.");
+    }
+    return values;
+  }).sort((a, b) => a[0] - b[0]);
+}
+
+function refreshExplorer() {
+  const select = el("explorerTicker");
+  const previous = select.value;
+  explorerFrontier = visualizationFrontierPoints(lastOptimizationFrontier);
+  select.replaceChildren();
+  disposeExplorerPlot();
+
+  const status = el("explorerStatus");
+  el("explorerResults").classList.add("hidden");
+  if (!explorerFrontier.length) {
+    status.textContent = "Open Portfolio Optimization and generate an efficient frontier in this browser tab.";
+    return;
+  }
+  if (explorerFrontier.some(point => !Array.isArray(point?.allocations))) {
+    status.textContent = "Some frontier points have no allocation data. Generate the frontier again.";
+    return;
+  }
+  const tickers = [...new Set(explorerFrontier[0].allocations.map(row => row.ticker))]
+    .filter(ticker => typeof ticker === "string" && ticker.trim())
+    .filter(ticker => explorerFrontier.every(point => point.allocations.some(row => row.ticker === ticker)))
+    .sort();
+  if (!tickers.length) {
+    status.textContent = "The frontier has no asset with an allocation at every point.";
+    return;
+  }
+
+  select.append(...tickers.map(ticker => new Option(ticker, ticker)));
+  select.value = tickers.includes(previous) ? previous : tickers.includes("ASSET_A") ? "ASSET_A" : tickers[0];
+  const analysisId = lastOptimizationPayload?.optimization_id;
+  const source = lastOptimizationPayload?.provenance?.source_name;
+  status.textContent = `${explorerFrontier.length} points loaded` +
+    (analysisId ? ` from ${analysisId}` : "") + (source ? ` (${source})` : "") + ".";
+  el("explorerResults").classList.remove("hidden");
+  renderExplorer();
+}
+
+function disposeExplorerPlot() {
+  if (!explorerPlot) return;
+  const plot = explorerPlot;
+  explorerPlot = null;
+  plot.remove();
+  window.Plotly?.purge(plot);
+}
+
+async function renderExplorer() {
+  if (!explorerFrontier.length || !el("explorerTicker").value) return;
+  disposeExplorerPlot();
+  const ticker = el("explorerTicker").value;
+  const table = el("explorerTable");
+  table.replaceChildren();
+  const status = el("explorerChartStatus");
+
+  let coordinates;
+  try {
+    coordinates = explorerCoordinates(explorerFrontier, ticker);
+  } catch (error) {
+    status.textContent = error.message;
+    return;
+  }
+  const labels = ["Annualized volatility", "Expected annual return", `${ticker} allocation`];
+  vizTable(table, labels, coordinates.map(row => row.map(vizPercent)));
+
+  const entry = vizLibraries.plotly;
+  if (!window.Plotly?.newPlot) {
+    status.textContent = entry.state === "failed"
+      ? "The 3D chart could not load. Open the frontier values below."
+      : "Loading the interactive chart…";
+    if (entry.state === "idle") vizLoadLibrary("plotly");
+    return;
+  }
+
+  const plot = vizNode("div");
+  plot.style.height = "clamp(360px, 60vh, 560px)";
+  el("explorerChart").appendChild(plot);
+  explorerPlot = plot;
+  status.textContent = "Drag to rotate, scroll to zoom, and point at a marker to see its values.";
+  const axis = label => ({title: label, tickformat: ".1%", gridcolor: "#c3ccd9"});
+  try {
+    await window.Plotly.newPlot(plot, [{
+      type: "scatter3d", mode: "lines+markers",
+      x: coordinates.map(row => row[0]),
+      y: coordinates.map(row => row[1]),
+      z: coordinates.map(row => row[2]),
+      line: {color: "#3264e9", width: 5},
+      marker: {color: "#16a6a0", size: 4},
+      hovertemplate: "Volatility: %{x:.2%}<br>Expected return: %{y:.2%}<br>Allocation: %{z:.2%}<extra></extra>"
+    }], {
+      margin: {l: 0, r: 0, t: 10, b: 0},
+      scene: {xaxis: axis(labels[0]), yaxis: axis(labels[1]), zaxis: axis(labels[2]), aspectmode: "cube"},
+      showlegend: false
+    }, {responsive: true, displaylogo: false});
+    if (explorerPlot !== plot) window.Plotly.purge(plot);
+  } catch (_) {
+    if (explorerPlot === plot) {
+      disposeExplorerPlot();
+      status.textContent = "The 3D chart could not render. Open the frontier values below.";
+    }
+  }
 }
 
 renderNav();
