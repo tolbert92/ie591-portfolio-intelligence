@@ -43,6 +43,8 @@ from .monte_carlo_engine import MonteCarloResult, run_monte_carlo
 from .monte_carlo_models import MonteCarloRequest
 from .strategy_comparison_engine import StrategyComparisonResult, compare_strategies
 from .strategy_comparison_models import StrategyComparisonRequest
+from .decision_support_engine import DecisionSupportResult, build_decision_support
+from .decision_support_models import DecisionSupportRequest
 from .visualization_api import router as visualization_router
 
 from .risk_classification import (
@@ -356,3 +358,14 @@ def run_strategy_comparison_endpoint(
     request: StrategyComparisonRequest,
 ) -> StrategyComparisonResult:
     return compare_strategies(request)
+
+
+@app.post("/api/decision-support/run", response_model=DecisionSupportResult)
+def run_decision_support_endpoint(request: DecisionSupportRequest) -> DecisionSupportResult:
+    try:
+        return build_decision_support(request)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "DECISION_SUPPORT_FAILED", "message": str(exc)},
+        ) from exc
