@@ -39,6 +39,8 @@ from .risk_scenarios import (
 )
 from .forward_test_engine import ForwardTestResult, run_forward_test
 from .forward_test_models import ForwardTestRequest
+from .monte_carlo_engine import MonteCarloResult, run_monte_carlo
+from .monte_carlo_models import MonteCarloRequest
 from .visualization_api import router as visualization_router
 
 from .risk_classification import (
@@ -334,3 +336,14 @@ def serve_frontend():
 @app.post("/api/forward-test/run", response_model=ForwardTestResult)
 def run_forward_test_endpoint(request: ForwardTestRequest) -> ForwardTestResult:
     return run_forward_test(request)
+
+
+@app.post("/api/monte-carlo/run", response_model=MonteCarloResult)
+def run_monte_carlo_endpoint(request: MonteCarloRequest) -> MonteCarloResult:
+    try:
+        return run_monte_carlo(request)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "MONTE_CARLO_SIMULATION_FAILED", "message": str(exc)},
+        ) from exc
