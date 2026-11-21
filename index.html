@@ -829,6 +829,7 @@ body {
     <p class="desc">Skill #5 · Two-dimensional portfolio analytics. Displays actual outputs from Skills #3 and #4 completed in this browser session; no invented performance history.</p>
     <div class="actions">
       <button class="btn" type="button" id="vizRefreshBtn" onclick="refreshVisualization(true)">Refresh from completed analyses</button>
+      <button class="btn secondary" type="button" id="vizExportBtn" onclick="exportVisualization()">Export Visualization JSON</button>
       <button class="btn secondary" type="button" onclick="go('optimize')">Run Optimization</button>
       <button class="btn secondary" type="button" onclick="go('risk')">Run Risk Assessment</button>
     </div>
@@ -1054,8 +1055,7 @@ function go(id) {
   if (!module) return;
 
   current = id;
-  el("dashboardExportBtn").textContent =
-    id === "charts" ? "Export Visualization JSON" : "Export Demo JSON";
+  el("dashboardExportBtn").classList.toggle("hidden", id === "charts");
 
   el("sidebar").classList.remove("open");
   el("breadcrumb").textContent = module.name;
@@ -1347,10 +1347,6 @@ function updateDashboard(amount) {
 }
 
 function downloadDemo() {
-  if (current === "charts") {
-    exportVisualization();
-    return;
-  }
   const data = {
     mode: "UI_DEMO_WITH_SKILLS_1_AND_2_API",
     notice:
