@@ -437,6 +437,18 @@ body {
 .viz-chart-frame:focus-within{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:760px){.viz-grid{grid-template-columns:1fr}.viz-chart-frame{min-height:260px}}
 
+@media print {
+  body.print-project-report .sidebar,
+  body.print-project-report .topbar,
+  body.print-project-report .heading,
+  body.print-project-report .report-controls,
+  body.print-project-report .toast { display: none !important; }
+  body.print-project-report .app { display: block; }
+  body.print-project-report .content { max-width: none; padding: 0; }
+  body.print-project-report #reportsWorkspace .panel { box-shadow: none; border: 0; padding: 0; }
+  body.print-project-report #reportsWorkspace tr { break-inside: avoid; }
+  body.print-project-report { background: white; }
+}
 </style>
 </head>
 
@@ -934,6 +946,20 @@ body {
     <div id="decisionResults" class="hidden"></div>
   </div>
 </section>
+<section id="reportsWorkspace" class="hidden">
+  <div class="panel">
+    <h3>IE 591 Portfolio Intelligence · Validation Report</h3>
+    <p class="desc">Run the skill demos in this tab to collect evidence. The report records observed results and leaves missing checks pending.</p>
+    <div class="actions report-controls">
+      <button type="button" class="btn" onclick="exportProjectReport()">Export Validation JSON</button>
+      <button type="button" class="btn secondary" onclick="printProjectReport()">Print / Save PDF</button>
+    </div>
+    <p class="note" id="reportStatus" role="status"></p>
+    <div id="reportSkills"></div>
+    <h3>Demo validation cases</h3>
+    <div id="reportCases"></div>
+  </div>
+</section>
 <section id="workspace" class="hidden">
   <div class="panel">
     <h3 id="moduleTitle"></h3>
@@ -1142,7 +1168,7 @@ function go(id) {
 
   if (current === "3d" && id !== "3d") disposeExplorerPlot();
   current = id;
-  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward" || id === "monte" || id === "compare" || id === "decision");
+  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward" || id === "monte" || id === "compare" || id === "decision" || id === "reports");
 
   el("sidebar").classList.remove("open");
   el("breadcrumb").textContent = module.name;
@@ -1150,7 +1176,7 @@ function go(id) {
     id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "monteWorkspace", "comparisonWorkspace", "decisionWorkspace", "workspace"].forEach(section => {
+  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "monteWorkspace", "comparisonWorkspace", "decisionWorkspace", "reportsWorkspace", "workspace"].forEach(section => {
     const visible =
       id === "dashboard" ? "dashboard" :
       id === "profile" ? "profile" :
@@ -1162,12 +1188,13 @@ function go(id) {
       id === "forward" ? "forwardWorkspace" :
       id === "monte" ? "monteWorkspace" :
       id === "compare" ? "comparisonWorkspace" :
-      id === "decision" ? "decisionWorkspace" : "workspace";
+      id === "decision" ? "decisionWorkspace" :
+      id === "reports" ? "reportsWorkspace" : "workspace";
 
     el(section).classList.toggle("hidden", section !== visible);
   });
 
-  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward", "monte", "compare", "decision"].includes(id)) {
+  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward", "monte", "compare", "decision", "reports"].includes(id)) {
     el("moduleTitle").textContent = module.name;
     el("moduleDesc").textContent = module.desc;
     el("moduleMessage").textContent =
@@ -1192,6 +1219,7 @@ function go(id) {
   renderNav();
   if (id === "charts") refreshVisualization(false);
   if (id === "3d") refreshExplorer();
+  if (id === "reports") renderProjectReport();
   window.scrollTo(0, 0);
 }
 
@@ -1374,6 +1402,7 @@ async function saveProfile() {
       true
     );
 
+    reportEvidence.profile = {status: "Created", source: "Investor Profile API"};
     toast("Investor profile submitted.");
   } catch (error) {
     feedback("Submission failed: " + error.message, false);
@@ -1407,6 +1436,7 @@ async function loadProfile() {
     }
 
     const p = data.profile;
+    reportEvidence.profile = {status: "Retrieved", source: "Investor Profile API"};
 
     el("investorName").value = p.investor_name;
     el("investment").value = p.initial_investment;
@@ -2502,6 +2532,11 @@ async function renderExplorer() {
       showlegend: false
     }, {responsive: true, displaylogo: false});
     if (explorerPlot !== plot) window.Plotly.purge(plot);
+    else reportEvidence.explorer = {
+      status: "Chart rendered", analysis_id: lastOptimizationPayload?.optimization_id,
+      source: lastOptimizationPayload?.provenance?.source_name,
+      ticker, point_count: coordinates.length
+    };
   } catch (_) {
     if (explorerPlot === plot) {
       disposeExplorerPlot();
@@ -2622,6 +2657,7 @@ async function runForwardDemo() {
     ]));
 
     const last = rows[rows.length - 1];
+    reportEvidence.forward = result;
     status.textContent = `Demo complete. Portfolio ended at ${forwardCurrency.format(last.portfolio_value)} and benchmark at ${forwardCurrency.format(last.benchmark_value)}.`;
     results.classList.remove("hidden");
   } catch (error) {
@@ -2707,6 +2743,8 @@ async function runMonteDemo() {
     vizTable(table, ["Percentile", "Ending value"], points.map(point => [
       point.label === "P50" ? "P50 (median)" : point.label, forwardCurrency.format(point.value)
     ]));
+    reportEvidence.monte = result;
+    if (volatility === 0) reportEvidence.monteZero = result;
     status.textContent = `Median ending value: ${forwardCurrency.format(points[2].value)}. ` +
       `Reached the ${forwardCurrency.format(result.goal_value)} goal in ${vizPercent(result.goal_probability)} of simulated outcomes.`;
     results.classList.remove("hidden");
@@ -2768,6 +2806,7 @@ async function runComparisonDemo() {
       row.eligible ? "Eligible" : row.exclusion_reason || "Excluded"
     ]));
 
+    reportEvidence.comparison = data;
     const eligible = data.strategies.filter(row => row.eligible).length;
     status.textContent = eligible
       ? `${eligible} of ${data.strategies.length} strategies eligible. Return weight: ${returnWeight}%. ` +
@@ -2878,6 +2917,8 @@ async function runDecisionDemo() {
       decision_id: "DECISION-BROWSER-DEMO", comparison, simulations
     });
     renderDecisionDemo(results, decision);
+    reportEvidence.decision = decision;
+    if (comparison.criteria.maximum_annualized_volatility === 0.10) reportEvidence.decisionCapped = decision;
     status.textContent = decision.summary;
     results.classList.remove("hidden");
   } catch (error) {
@@ -2885,6 +2926,118 @@ async function runDecisionDemo() {
   } finally {
     button.disabled = false;
     limit.disabled = false;
+  }
+}
+
+const reportEvidence = {};
+
+function buildProjectReport() {
+  const evidence = reportEvidence;
+  const snapshot = visualizationSnapshot || {};
+  const frontier = visualizationFrontierPoints(snapshot.frontier);
+  const lastForward = evidence.forward?.points.at(-1);
+  const zero = evidence.monteZero;
+  const capped = evidence.decisionCapped;
+  const skills = [
+    [1, "Investor Profile", evidence.profile],
+    [2, "Market Intelligence", lastMarketAnalysis && {
+      status: lastMarketAnalysis.status, analysis_id: lastMarketAnalysis.analysis_id,
+      source: lastMarketAnalysis.provenance?.source_name,
+      asset_count: lastMarketAnalysis.asset_statistics.length
+    }],
+    [3, "Portfolio Optimization", lastOptimization && {
+      status: lastOptimization.status, analysis_id: lastOptimization.optimization_id,
+      source: lastOptimization.provenance?.source_name, metrics: lastOptimization.portfolio_metrics
+    }],
+    [4, "Risk Assessment", lastRiskAssessment && {
+      status: lastRiskAssessment.status, analysis_id: lastRiskAssessment.assessment_id,
+      source: lastRiskAssessment.provenance?.source_name,
+      stress_scenario_count: lastRiskAssessment.stress_results?.length ?? 0
+    }],
+    [5, "Portfolio Visualization", (snapshot.optimization || snapshot.risk) ? {
+      status: "Dashboard data loaded",
+      optimization_id: snapshot.optimization?.optimization_id,
+      risk_assessment_id: snapshot.risk?.assessment_id,
+      frontier_point_count: frontier.length
+    } : null],
+    [6, "3D Portfolio Explorer", evidence.explorer],
+    [7, "Forward Testing", lastForward && {
+      status: "Demo completed", analysis_id: evidence.forward.test_id,
+      ending_portfolio_value: lastForward.portfolio_value, ending_benchmark_value: lastForward.benchmark_value
+    }],
+    [8, "Monte Carlo", evidence.monte && {
+      status: "Demo completed", analysis_id: evidence.monte.simulation_id,
+      source: evidence.monte.assumptions.source_name,
+      median_ending_value: evidence.monte.terminal_percentiles.p50,
+      goal_hit_rate: evidence.monte.goal_probability
+    }],
+    [9, "Strategy Comparison", evidence.comparison && {
+      status: evidence.comparison.status, analysis_id: evidence.comparison.comparison_id,
+      source: evidence.comparison.assumptions_label,
+      leading_strategy_ids: evidence.comparison.strategies.filter(row => row.rank === 1).map(row => row.strategy_id)
+    }],
+    [10, "Decision Support", evidence.decision && {
+      status: evidence.decision.outcome, analysis_id: evidence.decision.decision_id,
+      comparison_id: evidence.decision.comparison.comparison_id,
+      simulation_ids: evidence.decision.simulations.map(row => row.simulation.simulation_id)
+    }]
+  ].map(([skill, name, result]) => ({skill, name, evidence: result || null}));
+
+  const near = (actual, expected) => Number.isFinite(actual) && Math.abs(actual - expected) < 0.005;
+  const validation_cases = [
+    ["Forward Testing", "$1,105.00 portfolio and $1,009.80 benchmark",
+      lastForward ? near(lastForward.portfolio_value, 1105) && near(lastForward.benchmark_value, 1009.8) : null],
+    ["Monte Carlo · zero volatility", "Five percentiles at $1,210.00 and a 100% goal-hit rate",
+      zero ? ["p05", "p25", "p50", "p75", "p95"].every(key => near(zero.terminal_percentiles[key], 1210)) &&
+        zero.goal_probability === 1 : null],
+    ["Decision Support · 10% limit", "A is the only eligible strategy, B is excluded, and only A has simulation evidence",
+      capped ? capped.outcome === "sole_eligible" && capped.leading_strategy_ids.join(",") === "A" &&
+        capped.comparison.strategies.some(row => row.strategy_id === "B" && row.eligible === false) &&
+        capped.simulations.map(row => row.strategy_id).join(",") === "A" : null]
+  ].map(([name, expected, passed]) => ({
+    name, expected, status: passed === null ? "Pending" : passed ? "Passed" : "Failed"
+  }));
+
+  return {
+    project: "IE 591 Portfolio Intelligence", report_version: "1.0.0",
+    generated_at: new Date().toISOString(), source: "current_browser_tab",
+    skills, validation_cases
+  };
+}
+
+function renderProjectReport(report = buildProjectReport()) {
+  const skills = el("reportSkills"), cases = el("reportCases");
+  skills.replaceChildren();
+  cases.replaceChildren();
+  vizTable(skills, ["Skill", "Status", "Analysis / source"], report.skills.map(row => {
+    const evidence = row.evidence;
+    const references = evidence ? [
+      evidence.analysis_id, evidence.source, evidence.optimization_id, evidence.risk_assessment_id,
+      evidence.comparison_id, ...(evidence.simulation_ids || [])
+    ].filter(Boolean).join(" · ") : "";
+    return [`${row.skill}. ${row.name}`, evidence ? evidence.status || "Result recorded" : "No result in this tab", references || "—"];
+  }));
+  vizTable(cases, ["Case", "Expected result", "Status"], report.validation_cases.map(row =>
+    [row.name, row.expected, row.status]
+  ));
+  const count = report.skills.filter(row => row.evidence).length;
+  el("reportStatus").textContent = `Evidence available for ${count} of 10 skills. ` +
+    `Report generated ${new Date(report.generated_at).toLocaleString()}.`;
+}
+
+function exportProjectReport() {
+  const report = buildProjectReport();
+  renderProjectReport(report);
+  downloadJson(report, "ie591-validation-report.json");
+}
+
+function printProjectReport() {
+  renderProjectReport();
+  document.body.classList.add("print-project-report");
+  try {
+    window.print();
+  } finally {
+    document.body.classList.remove("print-project-report");
   }
 }
 
