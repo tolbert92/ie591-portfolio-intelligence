@@ -882,6 +882,24 @@ body {
     </div>
   </div>
 </section>
+<section id="monteWorkspace" class="hidden">
+  <div class="panel">
+    <h3>Simulated Ending Values</h3>
+    <p class="desc">Run 1,000 synthetic simulations over two years, starting at $1,000 with a 10% expected annual return and a $1,200 goal.</p>
+    <form id="monteForm" onsubmit="event.preventDefault(); runMonteDemo()">
+      <div class="field" style="max-width: 280px; margin-bottom: 12px">
+        <label for="monteVolatility">Annualized volatility (%)</label>
+        <input id="monteVolatility" type="number" required min="0" max="100" step="0.01" value="20">
+      </div>
+      <button class="btn" id="monteRunBtn" type="submit">Run demo simulation</button>
+    </form>
+    <p class="note" id="monteStatus" role="status">Run the demo to compare simulated outcomes.</p>
+    <div id="monteResults" class="hidden">
+      <div id="monteChart"></div>
+      <div id="monteTable"></div>
+    </div>
+  </div>
+</section>
 <section id="workspace" class="hidden">
   <div class="panel">
     <h3 id="moduleTitle"></h3>
@@ -1090,7 +1108,7 @@ function go(id) {
 
   if (current === "3d" && id !== "3d") disposeExplorerPlot();
   current = id;
-  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward");
+  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward" || id === "monte");
 
   el("sidebar").classList.remove("open");
   el("breadcrumb").textContent = module.name;
@@ -1098,7 +1116,7 @@ function go(id) {
     id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "workspace"].forEach(section => {
+  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "monteWorkspace", "workspace"].forEach(section => {
     const visible =
       id === "dashboard" ? "dashboard" :
       id === "profile" ? "profile" :
@@ -1107,12 +1125,13 @@ function go(id) {
       id === "risk" ? "riskWorkspace" :
       id === "charts" ? "visualizationWorkspace" :
       id === "3d" ? "explorerWorkspace" :
-      id === "forward" ? "forwardWorkspace" : "workspace";
+      id === "forward" ? "forwardWorkspace" :
+      id === "monte" ? "monteWorkspace" : "workspace";
 
     el(section).classList.toggle("hidden", section !== visible);
   });
 
-  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward"].includes(id)) {
+  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward", "monte"].includes(id)) {
     el("moduleTitle").textContent = module.name;
     el("moduleDesc").textContent = module.desc;
     el("moduleMessage").textContent =
@@ -2571,6 +2590,92 @@ async function runForwardDemo() {
     results.classList.remove("hidden");
   } catch (error) {
     status.textContent = `Forward test could not run. ${error.message}`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function renderMonteChart(parent, points, goal) {
+  const svg = frontierSvg("svg", {
+    viewBox: "0 0 720 220", class: "viz-canvas", role: "img",
+    "aria-label": "Simulated ending values by percentile. Exact values in the table below."
+  });
+  const values = [...points.map(point => point.value), goal];
+  const low = Math.min(...values), high = Math.max(...values);
+  const padding = Math.max(10, (high - low) * 0.12);
+  const min = Math.max(0, low - padding), max = high + padding;
+  const left = 78, right = 655, top = 30, bottom = 150;
+  const x = value => left + (right - left) * (value - min) / (max - min);
+  const y = index => top + index * (bottom - top) / (points.length - 1);
+
+  for (let index = 0; index <= 4; index += 1) {
+    const value = min + (max - min) * index / 4;
+    svg.append(
+      frontierSvg("line", {x1: x(value), x2: x(value), y1: top - 8, y2: bottom + 8, stroke: "#e0e6ee"}),
+      frontierSvg("text", {x: x(value), y: 177, "text-anchor": "middle", "font-size": 12, fill: "currentColor"}, forwardCurrency.format(value))
+    );
+  }
+  svg.append(
+    frontierSvg("line", {x1: x(goal), x2: x(goal), y1: top - 8, y2: bottom + 8, stroke: "#926019", "stroke-dasharray": "5 4"}),
+    frontierSvg("text", {x: left, y: 205, "font-size": 12, fill: "#79511a"}, `Dashed line: ${forwardCurrency.format(goal)} goal`)
+  );
+
+  points.forEach(({label, value}, index) => {
+    const dot = frontierSvg("circle", {cx: x(value), cy: y(index), r: 5, fill: "#3264e9"});
+    dot.appendChild(frontierSvg("title", {}, `${label}: ${forwardCurrency.format(value)}`));
+    svg.append(
+      frontierSvg("text", {x: left - 10, y: y(index) + 4, "text-anchor": "end", "font-size": 12, fill: "currentColor"}, label),
+      dot
+    );
+  });
+  parent.replaceChildren(svg);
+}
+
+async function runMonteDemo() {
+  const button = el("monteRunBtn");
+  const status = el("monteStatus");
+  const results = el("monteResults");
+  const volatility = el("monteVolatility").valueAsNumber;
+  if (!Number.isFinite(volatility) || volatility < 0 || volatility > 100) return;
+
+  button.disabled = true;
+  results.classList.add("hidden");
+  status.textContent = "Running the simulation…";
+  try {
+    const response = await fetch(apiUrl("/api/monte-carlo/run"), {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        simulation_id: "MC-BROWSER-DEMO", initial_value: 1000, horizon_years: 2,
+        path_count: 1000, seed: 42, goal_value: 1200,
+        assumptions: {
+          expected_annual_return: 0.10, annualized_volatility: volatility / 100,
+          source_name: "Synthetic browser demo", is_synthetic: true
+        }
+      })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(apiErrorMessage(result));
+    const points = ["05", "25", "50", "75", "95"].map(percentile => ({
+      label: `P${percentile}`, value: result?.terminal_percentiles?.[`p${percentile}`]
+    }));
+    if (!points.every(point => Number.isFinite(point.value) && point.value >= 0) ||
+        !Number.isFinite(result?.goal_value) || result.goal_value <= 0 ||
+        !Number.isFinite(result.goal_probability) ||
+        result.goal_probability < 0 || result.goal_probability > 1) {
+      throw new Error("The API returned incomplete simulation results.");
+    }
+    renderMonteChart(el("monteChart"), points, result.goal_value);
+    const table = el("monteTable");
+    table.replaceChildren();
+    vizTable(table, ["Percentile", "Ending value"], points.map(point => [
+      point.label === "P50" ? "P50 (median)" : point.label, forwardCurrency.format(point.value)
+    ]));
+    status.textContent = `Median ending value: ${forwardCurrency.format(points[2].value)}. ` +
+      `Reached the ${forwardCurrency.format(result.goal_value)} goal in ${vizPercent(result.goal_probability)} of simulated outcomes.`;
+    results.classList.remove("hidden");
+  } catch (error) {
+    status.textContent = `Simulation could not run. ${error.message}`;
   } finally {
     button.disabled = false;
   }
