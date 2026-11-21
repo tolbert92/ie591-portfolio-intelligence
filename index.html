@@ -922,6 +922,18 @@ body {
     <div id="comparisonResults" class="hidden"></div>
   </div>
 </section>
+<section id="decisionWorkspace" class="hidden">
+  <div class="panel">
+    <h3>Compare Strategies and Review Evidence</h3>
+    <p class="desc">This synthetic demo weights expected return at 75% and lower volatility at 25%. Each eligible strategy is simulated over two years from $1,000 with a $1,200 goal.</p>
+    <form onsubmit="event.preventDefault(); runDecisionDemo()">
+      <p><label><input id="decisionUseLimit" type="checkbox"> Apply a 10% annualized volatility limit</label></p>
+      <button class="btn" id="decisionRunBtn" type="submit">Run decision support demo</button>
+    </form>
+    <p id="decisionStatus" class="note" role="status">Run the demo to review the comparison and simulation results.</p>
+    <div id="decisionResults" class="hidden"></div>
+  </div>
+</section>
 <section id="workspace" class="hidden">
   <div class="panel">
     <h3 id="moduleTitle"></h3>
@@ -1130,7 +1142,7 @@ function go(id) {
 
   if (current === "3d" && id !== "3d") disposeExplorerPlot();
   current = id;
-  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward" || id === "monte" || id === "compare");
+  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward" || id === "monte" || id === "compare" || id === "decision");
 
   el("sidebar").classList.remove("open");
   el("breadcrumb").textContent = module.name;
@@ -1138,7 +1150,7 @@ function go(id) {
     id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "monteWorkspace", "comparisonWorkspace", "workspace"].forEach(section => {
+  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "monteWorkspace", "comparisonWorkspace", "decisionWorkspace", "workspace"].forEach(section => {
     const visible =
       id === "dashboard" ? "dashboard" :
       id === "profile" ? "profile" :
@@ -1149,12 +1161,13 @@ function go(id) {
       id === "3d" ? "explorerWorkspace" :
       id === "forward" ? "forwardWorkspace" :
       id === "monte" ? "monteWorkspace" :
-      id === "compare" ? "comparisonWorkspace" : "workspace";
+      id === "compare" ? "comparisonWorkspace" :
+      id === "decision" ? "decisionWorkspace" : "workspace";
 
     el(section).classList.toggle("hidden", section !== visible);
   });
 
-  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward", "monte", "compare"].includes(id)) {
+  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward", "monte", "compare", "decision"].includes(id)) {
     el("moduleTitle").textContent = module.name;
     el("moduleDesc").textContent = module.desc;
     el("moduleMessage").textContent =
@@ -2732,12 +2745,7 @@ async function runComparisonDemo() {
         comparison_id: "COMPARE-BROWSER-DEMO",
         assumptions_label: "Common synthetic annual assumptions",
         is_synthetic: true,
-        candidates: [
-          {strategy_id: "A", label: "Lower volatility",
-            metrics: {expected_annual_return: 0.072, annualized_volatility: 0.0894}},
-          {strategy_id: "B", label: "Higher return",
-            metrics: {expected_annual_return: 0.10, annualized_volatility: 0.15}}
-        ],
+        candidates: comparisonDemoCandidates(),
         criteria: {
           expected_return_weight: returnWeight / 100,
           volatility_weight: (100 - returnWeight) / 100,
@@ -2770,6 +2778,113 @@ async function runComparisonDemo() {
     status.textContent = `Comparison could not run. ${error.message}`;
   } finally {
     button.disabled = false;
+  }
+}
+
+function comparisonDemoCandidates() {
+  return [
+    {strategy_id: "A", label: "Lower volatility",
+      metrics: {expected_annual_return: 0.072, annualized_volatility: 0.0894}},
+    {strategy_id: "B", label: "Higher return",
+      metrics: {expected_annual_return: 0.10, annualized_volatility: 0.15}}
+  ];
+}
+
+async function decisionDemoPost(path, payload) {
+  const response = await fetch(apiUrl(path), {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(apiErrorMessage(data));
+  return data;
+}
+
+function renderDecisionDemo(parent, decision) {
+  const comparison = decision.comparison;
+  parent.replaceChildren(vizNode("h3", "Ranking and eligibility"));
+  const cap = comparison.criteria.maximum_annualized_volatility;
+  parent.appendChild(vizNode("p",
+    `Expected return weight: ${vizPercent(comparison.criteria.expected_return_weight)}. ` +
+    `Lower volatility weight: ${vizPercent(comparison.criteria.volatility_weight)}. ` +
+    (cap === null ? "No volatility limit." : `Volatility limit: ${vizPercent(cap)}.`), "desc"));
+  vizTable(parent, ["Rank", "Strategy", "Expected annual return", "Annualized volatility",
+    "Weighted score (0–1)", "Eligibility"], comparison.strategies.map(row => [
+    row.rank ?? "—", `${row.strategy_id} · ${row.label}`,
+    vizPercent(row.metrics.expected_annual_return), vizPercent(row.metrics.annualized_volatility),
+    Number.isFinite(row.weighted_score) ? row.weighted_score.toFixed(2) : "—",
+    row.eligible ? "Eligible" : row.exclusion_reason || "Excluded"
+  ]));
+
+  parent.appendChild(vizNode("h3", "Monte Carlo evidence"));
+  if (decision.simulations.length) {
+    vizTable(parent, ["Strategy", "Simulation ID", "Horizon", "Median ending value", "Goal", "Goal-hit rate"],
+      decision.simulations.map(({strategy_id, simulation}) => [
+        strategy_id, simulation.simulation_id, `${simulation.horizon_years} years`,
+        forwardCurrency.format(simulation.terminal_percentiles.p50),
+        simulation.goal_value === null ? "—" : forwardCurrency.format(simulation.goal_value),
+        vizPercent(simulation.goal_probability)
+      ]));
+  } else {
+    parent.appendChild(vizNode("p", "No linked simulations are available.", "desc"));
+  }
+
+  if (decision.eligible_without_simulation.length) {
+    parent.appendChild(vizNode("p",
+      `Eligible strategies without simulation results: ${decision.eligible_without_simulation.join(", ")}.`, "desc"));
+  }
+  const limitations = vizNode("ul", undefined, "desc");
+  limitations.append(...decision.limitations.map(message => vizNode("li", message)));
+  parent.appendChild(limitations);
+}
+
+async function runDecisionDemo() {
+  const button = el("decisionRunBtn");
+  const limit = el("decisionUseLimit");
+  const results = el("decisionResults");
+  const status = el("decisionStatus");
+  button.disabled = true;
+  limit.disabled = true;
+  results.classList.add("hidden");
+  status.textContent = "Comparing strategies…";
+
+  try {
+    const comparison = await decisionDemoPost("/api/strategy-comparison/run", {
+      comparison_id: "COMPARE-DECISION-BROWSER-DEMO",
+      assumptions_label: "Common synthetic annual assumptions",
+      is_synthetic: true,
+      candidates: comparisonDemoCandidates(),
+      criteria: {
+        expected_return_weight: 0.75, volatility_weight: 0.25,
+        maximum_annualized_volatility: limit.checked ? 0.10 : null
+      }
+    });
+    status.textContent = "Simulating eligible strategies…";
+    const simulations = await Promise.all(comparison.strategies.filter(row => row.eligible).map(async row => ({
+      strategy_id: row.strategy_id,
+      simulation: await decisionDemoPost("/api/monte-carlo/run", {
+        simulation_id: `MC-DECISION-${row.strategy_id}`,
+        initial_value: 1000, horizon_years: 2, path_count: 1000, seed: 42, goal_value: 1200,
+        assumptions: {
+          expected_annual_return: row.metrics.expected_annual_return,
+          annualized_volatility: row.metrics.annualized_volatility,
+          source_name: `Synthetic Strategy ${row.strategy_id} demo assumptions`,
+          is_synthetic: true
+        }
+      })
+    })));
+    const decision = await decisionDemoPost("/api/decision-support/run", {
+      decision_id: "DECISION-BROWSER-DEMO", comparison, simulations
+    });
+    renderDecisionDemo(results, decision);
+    status.textContent = decision.summary;
+    results.classList.remove("hidden");
+  } catch (error) {
+    status.textContent = `Decision support could not run. ${error.message}`;
+  } finally {
+    button.disabled = false;
+    limit.disabled = false;
   }
 }
 
