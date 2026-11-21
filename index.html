@@ -224,11 +224,7 @@ body {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: conic-gradient(
-    #3264e9 0 60%,
-    #16a6a0 60% 90%,
-    #e8a044 90% 100%
-  );
+  background: var(--line);
   position: relative;
   flex-shrink: 0;
 }
@@ -571,14 +567,10 @@ body {
   <div>
     <div class="panel">
       <h3>Asset Allocation</h3>
-      <p class="desc">Illustrative portfolio composition</p>
-      <div class="alloc">
-        <div class="donut"><span>100%</span></div>
-        <div class="alines">
-          <div class="aline"><span>Stocks</span><b>60%</b></div>
-          <div class="aline"><span>Bonds</span><b>30%</b></div>
-          <div class="aline"><span>Cash</span><b>10%</b></div>
-        </div>
+      <p class="desc" id="dashAllocationSource">Run Portfolio Optimization to see asset weights.</p>
+      <div class="alloc hidden" id="dashAllocation">
+        <div class="donut" id="dashAllocationChart" aria-hidden="true"><span>100%</span></div>
+        <div class="alines" id="dashAllocationRows"></div>
       </div>
     </div>
     <div class="panel">
@@ -3017,6 +3009,44 @@ function updateDashboardMetrics() {
     el(valueId).textContent = vizPercent(metric);
     el(sourceId).textContent = Number.isFinite(metric) ? source : "Run Portfolio Optimization";
   }
+  updateDashboardAllocation(optimization, source);
+}
+
+function updateDashboardAllocation(optimization, source) {
+  const allocations = optimization?.allocations;
+  const panel = el("dashAllocation");
+  const rows = el("dashAllocationRows");
+  const description = el("dashAllocationSource");
+  const chart = el("dashAllocationChart");
+  rows.replaceChildren();
+  chart.style.background = "";
+  panel.classList.add("hidden");
+  description.textContent = "Run Portfolio Optimization to see asset weights.";
+
+  if (!allocations?.length || !allocations.every(row =>
+      typeof row.ticker === "string" && Number.isFinite(row.weight) && row.weight >= 0 && row.weight <= 1)) return;
+  const total = allocations.reduce((sum, row) => sum + row.weight, 0);
+  if (Math.abs(total - 1) > 1e-6) return;
+
+  const stops = [];
+  let cumulative = 0;
+  for (const [index, allocation] of allocations.entries()) {
+    const color = vizColors[index % vizColors.length];
+    const start = 100 * cumulative / total;
+    cumulative += allocation.weight;
+    if (allocation.weight > 0) stops.push(`${color} ${start}% ${100 * cumulative / total}%`);
+
+    const row = vizNode("div", undefined, "aline");
+    const label = vizNode("span", allocation.ticker);
+    label.style.borderInlineStart = `4px solid ${color}`;
+    label.style.paddingInlineStart = "8px";
+    row.append(label, vizNode("b", vizPercent(allocation.weight)));
+    rows.appendChild(row);
+  }
+
+  chart.style.background = `conic-gradient(${stops.join(", ")})`;
+  description.textContent = source;
+  panel.classList.remove("hidden");
 }
 
 function updateDashboardEvidence() {
