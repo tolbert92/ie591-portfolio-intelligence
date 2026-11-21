@@ -535,33 +535,11 @@ body {
 
 <div class="layout">
   <div class="panel">
-    <h3>Portfolio Performance Overview</h3>
-    <p class="desc">Illustrative performance index</p>
-    <svg class="chart" viewBox="0 0 680 270"
-      role="img" aria-label="Illustrative portfolio performance chart">
-      <g stroke="#e9edf4">
-        <path d="M40 30H650 M40 85H650 M40 140H650 M40 195H650 M40 250H650"/>
-      </g>
-      <path
-        d="M40 220 L92 207 L143 212 L194 178
-           L245 186 L296 150 L347 161 L398 128
-           L449 135 L500 90 L551 103 L602 64 L650 47"
-        fill="none"
-        stroke="#3264e9"
-        stroke-width="3.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"/>
-      <g fill="#8b98ac" font-size="12">
-        <text x="40" y="267">Jan</text>
-        <text x="190" y="267">Mar</text>
-        <text x="345" y="267">Jun</text>
-        <text x="500" y="267">Sep</text>
-        <text x="625" y="267">Dec</text>
-      </g>
-    </svg>
-    <p class="mini">
-      This chart is demonstration data, not actual portfolio performance.
-    </p>
+    <h3>Paper Portfolio Performance</h3>
+    <p class="desc">Skill #7 synthetic forward test with a separate $1,000 starting balance.</p>
+    <p id="dashboardForwardStatus" class="note">Run the Forward Testing demo to see portfolio and benchmark values.</p>
+    <div id="dashboardForwardChart"></div>
+    <a class="btn secondary" href="?skill=forward" onclick="event.preventDefault(); go('forward')">Open Forward Testing</a>
   </div>
 
   <div>
@@ -1215,6 +1193,7 @@ function go(id) {
   if (id === "reports") renderProjectReport();
   if (id === "dashboard") {
     updateDashboardMetrics();
+    updateDashboardPerformance();
     updateDashboardEvidence();
   }
   window.scrollTo(0, 0);
@@ -2613,6 +2592,13 @@ function renderForwardChart(parent, rows) {
   parent.replaceChildren(svg);
 }
 
+function forwardValueRows(result) {
+  return [{
+    date: "Start", portfolio_value: result.initial_value, benchmark_value: result.initial_value,
+    portfolio_cumulative_return: 0, benchmark_cumulative_return: 0
+  }, ...result.points];
+}
+
 async function runForwardDemo() {
   const button = el("forwardRunBtn");
   const status = el("forwardStatus");
@@ -2636,10 +2622,7 @@ async function runForwardDemo() {
       throw new Error("The API returned incomplete portfolio or benchmark results.");
     }
 
-    const start = {date: "Start", portfolio_value: result.initial_value,
-      benchmark_value: result.initial_value, portfolio_cumulative_return: 0,
-      benchmark_cumulative_return: 0};
-    const rows = [start, ...result.points];
+    const rows = forwardValueRows(result);
     renderForwardChart(el("forwardChart"), rows);
     el("forwardTable").replaceChildren();
     vizTable(el("forwardTable"), ["Date", "Portfolio value", "Portfolio return",
@@ -2651,6 +2634,10 @@ async function runForwardDemo() {
 
     const last = rows[rows.length - 1];
     reportEvidence.forward = result;
+    if (current === "dashboard") {
+      updateDashboardPerformance();
+      updateDashboardEvidence();
+    }
     status.textContent = `Demo complete. Portfolio ended at ${forwardCurrency.format(last.portfolio_value)} and benchmark at ${forwardCurrency.format(last.benchmark_value)}.`;
     results.classList.remove("hidden");
   } catch (error) {
@@ -3047,6 +3034,23 @@ function updateDashboardAllocation(optimization, source) {
   chart.style.background = `conic-gradient(${stops.join(", ")})`;
   description.textContent = source;
   panel.classList.remove("hidden");
+}
+
+function updateDashboardPerformance() {
+  const chart = el("dashboardForwardChart");
+  const status = el("dashboardForwardStatus");
+  const result = reportEvidence.forward;
+  if (!result) {
+    chart.replaceChildren();
+    status.textContent = "Run the Forward Testing demo to see portfolio and benchmark values.";
+    return;
+  }
+
+  const rows = forwardValueRows(result);
+  const last = rows[rows.length - 1];
+  renderForwardChart(chart, rows);
+  status.textContent = `Paper portfolio: ${forwardCurrency.format(last.portfolio_value)}. ` +
+    `Benchmark: ${forwardCurrency.format(last.benchmark_value)}.`;
 }
 
 function updateDashboardEvidence() {
