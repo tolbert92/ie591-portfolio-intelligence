@@ -900,6 +900,28 @@ body {
     </div>
   </div>
 </section>
+<section id="comparisonWorkspace" class="hidden">
+  <div class="panel">
+    <h3>Rank Demo Strategies</h3>
+    <p class="desc">Compare two strategies using the same synthetic annual assumptions. A higher score means a better fit for the selected weights.</p>
+    <form onsubmit="event.preventDefault(); runComparisonDemo()">
+      <div class="formgrid">
+        <div class="field">
+          <label for="comparisonReturnWeight">Weight on expected return (%)</label>
+          <input id="comparisonReturnWeight" type="number" min="0" max="100" step="1" value="75" required oninput="updateComparisonWeight()">
+          <p class="mini" id="comparisonVolatilityWeight">Weight on lower volatility: 25%</p>
+        </div>
+        <div class="field">
+          <label for="comparisonVolatilityLimit">Maximum annualized volatility (%)</label>
+          <input id="comparisonVolatilityLimit" type="number" min="0" step="any" placeholder="Leave blank for no limit">
+        </div>
+      </div>
+      <button class="btn" id="comparisonRunBtn" type="submit">Compare demo strategies</button>
+    </form>
+    <p id="comparisonStatus" class="note" role="status">Run the comparison to see scores and eligibility.</p>
+    <div id="comparisonResults" class="hidden"></div>
+  </div>
+</section>
 <section id="workspace" class="hidden">
   <div class="panel">
     <h3 id="moduleTitle"></h3>
@@ -1108,7 +1130,7 @@ function go(id) {
 
   if (current === "3d" && id !== "3d") disposeExplorerPlot();
   current = id;
-  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward" || id === "monte");
+  el("dashboardExportBtn").classList.toggle("hidden", id === "charts" || id === "3d" || id === "forward" || id === "monte" || id === "compare");
 
   el("sidebar").classList.remove("open");
   el("breadcrumb").textContent = module.name;
@@ -1116,7 +1138,7 @@ function go(id) {
     id === "dashboard" ? "Portfolio Dashboard" : module.name;
   el("pageDesc").textContent = module.desc;
 
-  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "monteWorkspace", "workspace"].forEach(section => {
+  ["dashboard", "profile", "market", "optimize", "riskWorkspace", "visualizationWorkspace", "explorerWorkspace", "forwardWorkspace", "monteWorkspace", "comparisonWorkspace", "workspace"].forEach(section => {
     const visible =
       id === "dashboard" ? "dashboard" :
       id === "profile" ? "profile" :
@@ -1126,12 +1148,13 @@ function go(id) {
       id === "charts" ? "visualizationWorkspace" :
       id === "3d" ? "explorerWorkspace" :
       id === "forward" ? "forwardWorkspace" :
-      id === "monte" ? "monteWorkspace" : "workspace";
+      id === "monte" ? "monteWorkspace" :
+      id === "compare" ? "comparisonWorkspace" : "workspace";
 
     el(section).classList.toggle("hidden", section !== visible);
   });
 
-  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward", "monte"].includes(id)) {
+  if (!["dashboard", "profile", "market", "optimize", "risk", "charts", "3d", "forward", "monte", "compare"].includes(id)) {
     el("moduleTitle").textContent = module.name;
     el("moduleDesc").textContent = module.desc;
     el("moduleMessage").textContent =
@@ -2676,6 +2699,75 @@ async function runMonteDemo() {
     results.classList.remove("hidden");
   } catch (error) {
     status.textContent = `Simulation could not run. ${error.message}`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function updateComparisonWeight() {
+  const weight = el("comparisonReturnWeight").valueAsNumber;
+  el("comparisonVolatilityWeight").textContent = Number.isInteger(weight) && weight >= 0 && weight <= 100
+    ? `Weight on lower volatility: ${100 - weight}%`
+    : "Enter a whole number from 0 to 100.";
+}
+
+async function runComparisonDemo() {
+  const returnWeight = el("comparisonReturnWeight").valueAsNumber;
+  const limitInput = el("comparisonVolatilityLimit");
+  const limit = limitInput.value === "" ? null : limitInput.valueAsNumber / 100;
+  if (!Number.isInteger(returnWeight) || returnWeight < 0 || returnWeight > 100 ||
+      (limit !== null && (!Number.isFinite(limit) || limit < 0))) return;
+
+  const button = el("comparisonRunBtn");
+  const status = el("comparisonStatus");
+  const results = el("comparisonResults");
+  button.disabled = true;
+  results.classList.add("hidden");
+  status.textContent = "Comparing strategies…";
+  try {
+    const response = await fetch(apiUrl("/api/strategy-comparison/run"), {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        comparison_id: "COMPARE-BROWSER-DEMO",
+        assumptions_label: "Common synthetic annual assumptions",
+        is_synthetic: true,
+        candidates: [
+          {strategy_id: "A", label: "Lower volatility",
+            metrics: {expected_annual_return: 0.072, annualized_volatility: 0.0894}},
+          {strategy_id: "B", label: "Higher return",
+            metrics: {expected_annual_return: 0.10, annualized_volatility: 0.15}}
+        ],
+        criteria: {
+          expected_return_weight: returnWeight / 100,
+          volatility_weight: (100 - returnWeight) / 100,
+          maximum_annualized_volatility: limit
+        }
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(apiErrorMessage(data));
+    if (!Array.isArray(data?.strategies) || !data.strategies.length) {
+      throw new Error("The API returned no strategies.");
+    }
+
+    results.replaceChildren();
+    vizTable(results, ["Rank", "Strategy", "Expected annual return", "Annualized volatility",
+      "Weighted score (0–1)", "Eligibility"], data.strategies.map(row => [
+      row.rank ?? "—", `${row.strategy_id} · ${row.label}`,
+      vizPercent(row.metrics.expected_annual_return), vizPercent(row.metrics.annualized_volatility),
+      Number.isFinite(row.weighted_score) ? row.weighted_score.toFixed(2) : "—",
+      row.eligible ? "Eligible" : row.exclusion_reason || "Excluded"
+    ]));
+
+    const eligible = data.strategies.filter(row => row.eligible).length;
+    status.textContent = eligible
+      ? `${eligible} of ${data.strategies.length} strategies eligible. Return weight: ${returnWeight}%. ` +
+        (limit === null ? "No volatility limit." : `Volatility limit: ${vizPercent(limit)}.`)
+      : "No strategy meets the volatility limit. Increase it or clear it and run again.";
+    results.classList.remove("hidden");
+  } catch (error) {
+    status.textContent = `Comparison could not run. ${error.message}`;
   } finally {
     button.disabled = false;
   }
